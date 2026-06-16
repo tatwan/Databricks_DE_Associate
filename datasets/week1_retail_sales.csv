@@ -1,0 +1,39 @@
+order_id,order_date,customer_id,store,product,category,quantity,unit_price
+1001,2026-05-01,C001,Atlanta,Espresso Machine,Appliances,1,249.99
+1002,2026-05-01,C002,Atlanta,Coffee Grinder,Appliances,2,89.50
+1003,2026-05-01,C003,Dallas,French Press,Kitchen,1,34.99
+1004,2026-05-02,C004,Dallas,Espresso Machine,Appliances,1,249.99
+1005,2026-05-02,C001,Atlanta,Coffee Beans 1kg,Consumables,3,18.75
+1006,2026-05-02,C005,Chicago,Milk Frother,Appliances,1,45.00
+1007,2026-05-03,C006,Chicago,Coffee Beans 1kg,Consumables,2,18.75
+1008,2026-05-03,C002,Atlanta,Travel Mug,Accessories,4,22.00
+1009,2026-05-03,C007,Dallas,Pour Over Kit,Kitchen,1,52.25
+1010,2026-05-04,C008,Chicago,Espresso Machine,Appliances,1,249.99
+1011,2026-05-04,C003,Dallas,Coffee Beans 1kg,Consumables,5,18.75
+1012,2026-05-04,C009,Atlanta,Descaling Kit,Consumables,2,12.99
+1013,2026-05-05,C010,Chicago,Coffee Grinder,Appliances,1,89.50
+1014,2026-05-05,C004,Dallas,Travel Mug,Accessories,2,22.00
+1015,2026-05-05,C011,Atlanta,French Press,Kitchen,2,34.99
+1016,2026-05-06,C012,Chicago,Pour Over Kit,Kitchen,1,52.25
+1017,2026-05-06,C005,Chicago,Coffee Beans 1kg,Consumables,4,18.75
+1018,2026-05-06,C013,Dallas,Milk Frother,Appliances,1,45.00
+1019,2026-05-07,C014,Atlanta,Espresso Machine,Appliances,1,249.99
+1020,2026-05-07,C006,Chicago,Descaling Kit,Consumables,1,12.99
+1021,2026-05-07,C015,Dallas,Coffee Grinder,Appliances,2,89.50
+1022,2026-05-08,C007,Dallas,Coffee Beans 1kg,Consumables,2,18.75
+1023,2026-05-08,C016,Atlanta,Travel Mug,Accessories,1,22.00
+1024,2026-05-08,C008,Chicago,French Press,Kitchen,1,34.99
+1025,2026-05-09,C017,Dallas,Espresso Machine,Appliances,2,249.99
+1026,2026-05-09,C009,Atlanta,Coffee Beans 1kg,Consumables,3,18.75
+1027,2026-05-09,C018,Chicago,Pour Over Kit,Kitchen,1,52.25
+1028,2026-05-10,C010,Chicago,Milk Frother,Appliances,1,45.00
+1029,2026-05-10,C019,Atlanta,Coffee Grinder,Appliances,1,89.50
+1030,2026-05-10,C011,Atlanta,Descaling Kit,Consumables,3,12.99
+1030,2026-05-10,C011,Atlanta,Descaling Kit,Consumables,3,12.99
+1031,2026-05-11,C020,Dallas,Travel Mug,Accessories,2,22.00
+1032,2026-05-11,C012,Chicago,Coffee Beans 1kg,Consumables,1,18.75
+1033,2026-05-11,C021,,Espresso Machine,Appliances,1,249.99
+1034,2026-05-12,C022,Atlanta,French Press,Kitchen,1,
+1035,2026-05-12,C013,Dallas,Coffee Beans 1kg,Consumables,2,18.75
+1035,2026-05-12,C013,Dallas,Coffee Beans 1kg,Consumables,2,18.75
+1036,2026-05-12,C023,Chicago,Coffee Grinder,Appliances,1,89.50

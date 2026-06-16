@@ -1,0 +1,10 @@
+{"customer_id": "C001", "name": "Ava Mitchell", "loyalty_tier": "Gold", "contact": {"email": "ava.m@example.com", "city": "Atlanta"}, "favorite_categories": ["Appliances", "Consumables"]}
+{"customer_id": "C002", "name": "Ben Ortiz", "loyalty_tier": "Silver", "contact": {"email": "ben.o@example.com", "city": "Atlanta"}, "favorite_categories": ["Accessories"]}
+{"customer_id": "C003", "name": "Chloe Nguyen", "loyalty_tier": "Bronze", "contact": {"email": "chloe.n@example.com", "city": "Dallas"}, "favorite_categories": ["Kitchen", "Consumables"]}
+{"customer_id": "C005", "name": "Dan Weber", "loyalty_tier": "Gold", "contact": {"email": "dan.w@example.com", "city": "Chicago"}, "favorite_categories": ["Appliances"]}
+{"customer_id": "C006", "name": "Elena Rossi", "loyalty_tier": "Silver", "contact": {"email": "elena.r@example.com", "city": "Chicago"}, "favorite_categories": ["Consumables", "Kitchen"]}
+{"customer_id": "C008", "name": "Farah Khan", "loyalty_tier": "Gold", "contact": {"email": "farah.k@example.com", "city": "Chicago"}, "favorite_categories": ["Appliances", "Kitchen", "Accessories"]}
+{"customer_id": "C010", "name": "Greg Olsen", "loyalty_tier": "Bronze", "contact": {"email": "greg.o@example.com", "city": "Chicago"}, "favorite_categories": ["Kitchen"]}
+{"customer_id": "C012", "name": "Hana Sato", "loyalty_tier": "Silver", "contact": {"email": "hana.s@example.com", "city": "Chicago"}, "favorite_categories": ["Consumables"]}
+{"customer_id": "C014", "name": "Ian Brooks", "loyalty_tier": "Bronze", "contact": {"email": "ian.b@example.com", "city": "Atlanta"}, "favorite_categories": ["Appliances", "Consumables"]}
+{"customer_id": "C015", "name": "Julia Mendes", "loyalty_tier": "Gold", "contact": {"email": "julia.m@example.com", "city": "Dallas"}, "favorite_categories": ["Consumables", "Accessories"]}

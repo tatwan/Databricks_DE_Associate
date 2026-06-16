@@ -1,0 +1,49 @@
+# Declarative Automation Bundle (formerly Databricks Asset Bundles)
+# Teaching example — Week 3. One codebase, promoted across environments.
+# CLI workflow:  databricks bundle validate → deploy -t <target> → run -t <target>
+
+bundle:
+  name: brewmart_pipeline
+
+# Variables = environment-specific configuration without code changes
+variables:
+  target_schema:
+    description: Schema that the pipeline writes to
+    default: lab1_dev
+
+resources:
+  jobs:
+    brewmart_daily:
+      name: "BrewMart Daily Sales (${bundle.target})"
+      tasks:
+        - task_key: ingest_bronze
+          notebook_task:
+            notebook_path: ../notebooks/week3_01_ingest_bronze.py
+            base_parameters:
+              target_schema: ${var.target_schema}
+              simulate_failure: "false"
+        - task_key: build_silver
+          depends_on:
+            - task_key: ingest_bronze        # the DAG edge, as code
+          notebook_task:
+            notebook_path: ../notebooks/week3_02_build_silver.py
+            base_parameters:
+              target_schema: ${var.target_schema}
+      trigger:
+        periodic:
+          interval: 1
+          unit: DAYS
+      email_notifications:
+        on_failure:
+          - you@example.com
+
+# Targets = the same bundle, different environments (the CI/CD exam story)
+targets:
+  dev:
+    default: true
+    variables:
+      target_schema: lab1_dev          # dev writes to a dev schema
+  prod:
+    mode: production
+    variables:
+      target_schema: sales_prod        # identical code, prod destination

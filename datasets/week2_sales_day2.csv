@@ -1,0 +1,14 @@
+order_id,order_date,customer_id,store,product,category,quantity,unit_price
+1037,2026-05-13,C002,Atlanta,Pour Over Kit,Kitchen,1,52.25
+1038,2026-05-13,C015,Dallas,Coffee Beans 1kg,Consumables,3,18.75
+1039,2026-05-13,C024,Chicago,Espresso Machine,Appliances,1,249.99
+1040,2026-05-13,C005,Chicago,Travel Mug,Accessories,2,22.00
+1041,2026-05-13,C025,Atlanta,Milk Frother,Appliances,1,45.00
+1042,2026-05-14,C008,Chicago,Coffee Beans 1kg,Consumables,4,18.75
+1043,2026-05-14,C026,Dallas,French Press,Kitchen,2,34.99
+1044,2026-05-14,C001,Atlanta,Descaling Kit,Consumables,1,12.99
+1045,2026-05-14,C027,,Coffee Grinder,Appliances,1,89.50
+1046,2026-05-14,C014,Atlanta,Coffee Beans 1kg,Consumables,2,18.75
+1046,2026-05-14,C014,Atlanta,Coffee Beans 1kg,Consumables,2,18.75
+1047,2026-05-15,C028,Dallas,Espresso Machine,Appliances,1,249.99
+1048,2026-05-15,C010,Chicago,Pour Over Kit,Kitchen,1,

@@ -1,0 +1,14 @@
+return_id,order_id,return_date,quantity_returned,reason
+R001,1037,2026-05-16,1,Defective on arrival
+R002,1040,2026-05-16,1,Changed mind
+R003,1042,2026-05-17,1,Wrong item shipped
+R004,1044,2026-05-17,1,Defective on arrival
+R005,1039,2026-05-18,1,Damaged in transit
+R006,1043,2026-05-18,1,Changed mind
+R007,1047,2026-05-19,1,Defective on arrival
+R007,1047,2026-05-19,1,Defective on arrival
+R008,1051,2026-05-19,2,Wrong item shipped
+R009,1055,2026-05-20,1,Damaged in transit
+R010,2001,2026-05-20,1,Changed mind
+R011,1049,2026-05-21,1,Defective on arrival
+R012,1057,2026-05-21,1,Changed mind
