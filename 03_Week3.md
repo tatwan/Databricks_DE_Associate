@@ -1,7 +1,7 @@
 # Week 3: Orchestration and Delivery — Lakeflow Jobs, Git Folders, and Automation Bundles
 
 > Aligned to the **May 4, 2026** Databricks Certified Data Engineer Associate exam guide.
-> Primary exam domains: **Working with Lakeflow Jobs** (~16%, full coverage) + **Implementing CI/CD** (~10%, full coverage) + **Troubleshooting, Monitoring, and Optimization** (run history / Jobs-UI monitoring objectives — the rest lands in Week 4).
+> Primary exam domains: **Working with Lakeflow Jobs** (16%, full coverage) + **Implementing CI/CD** (10%, full coverage) + **Troubleshooting, Monitoring, and Optimization** (run history / Jobs-UI monitoring objectives — the rest lands in Week 4).
 > Together: roughly **a quarter of the exam** lives in this session.
 
 ---
@@ -49,7 +49,7 @@
 
 **Key bullets**
 - Weeks 1–2: you built a pipeline; this week: it runs itself, survives failures, and ships across environments
-- Two full domains today: Lakeflow Jobs (~16%) + CI/CD (~10%), plus the monitoring objectives of Domain 6
+- Two full domains today: Lakeflow Jobs (16%) + CI/CD (10%), plus the monitoring objectives of Domain 6
 - The CI/CD domain is **new in the May 2026 exam** — almost no older prep material covers it
 - One storyline: BrewMart's pipeline → scheduled job → versioned code → promotable bundle
 
@@ -250,7 +250,7 @@ Verbatim Domain 4 objective; also feeds Domain 1 compute-selection questions.
 - Problems: untracked changes, no review, manual copy-to-prod, config drift between environments
 - The Databricks answer, two layers: **Git folders** (version control *in* the workspace) + **Declarative Automation Bundles** (deployable definitions of jobs/pipelines/code)
 - Goal: same codebase, promoted dev → test → prod with environment-specific config
-- New exam domain (~10%) — four objectives, all covered in the next three slides
+- New exam domain (10%) — four objectives, all covered in the next three slides
 
 **Speaker notes**
 Frame for data engineers, not app developers: the asset being shipped is a *pipeline* — code (notebooks) + orchestration (job definition) + config (schemas, schedules). Git folders version the code; bundles version *everything else too*. ADF/Synapse folks: this is their ARM-template + Git-integration story, but file-based and CLI-driven rather than portal-exported.
@@ -557,141 +557,11 @@ Six picks + forcing constraint, posted to chat.
 
 ---
 
-## 7. Markdown Mash Practice Quiz
+## 7. Live Knowledge Check
 
-# Week 3 Quiz: Lakeflow Jobs, Orchestration, and CI/CD
-# Score 100
+The Markdown Mash quiz for this week is kept in the instructor-only private materials and launched live during the session.
 
-## Q1: What is the current Databricks name for the workflow/job orchestration service?
-- [ ] Databricks Workflows
-- [x] Lakeflow Jobs
-- [ ] Delta Orchestrator
-- [ ] Lakeflow Connect
-  ::time=20
-
-## Q2: A 6-task job run has one failed task and two downstream tasks that were skipped. What does Repair run do?
-- [ ] Re-executes all six tasks from the beginning
-- [ ] Re-executes only the single failed task and marks the skipped ones as succeeded
-- [ ] Creates a copy of the job with the failed task removed
-- [x] Re-executes the failed task and its downstream tasks, skipping already-successful ones
-  ::time=20
-
-## Q3: Which trigger type starts a job run when new data files land in a monitored storage location?
-- [x] File arrival trigger
-- [ ] Scheduled trigger with a 1-minute interval
-- [ ] Continuous trigger
-- [ ] Table update trigger
-  ::time=20
-
-## Q4: Which file defines a Declarative Automation Bundle?
-- [ ] bundle.json
-- [ ] workflow.yml
-- [x] databricks.yml
-- [ ] deploy.yaml
-  ::time=20
-
-## Q5: Which set of Git operations can be performed directly inside the Databricks workspace Git folder UI?
-- [ ] Only viewing files; all Git operations require the provider website
-- [x] Creating branches, switching branches, committing, and pushing changes
-- [ ] Merging pull requests and deleting remote repositories
-- [ ] Rebasing and cherry-picking across forks
-  ::time=20
-
-## Q6: A silver table is updated by several different upstream jobs at unpredictable times. A downstream aggregation job must run whenever the silver table receives new data. Which trigger fits best?
-- [ ] A scheduled trigger every five minutes
-- [ ] A file arrival trigger on the landing volume
-- [x] A table update trigger on the silver table
-- [ ] A continuous trigger on the aggregation job
-  ::time=30
-
-## Q7: After a nightly gold-table load, leadership's dashboard must display current data. Which job design is most appropriate?
-- [x] Add a dashboard task that depends on the gold-load task
-- [ ] Schedule a second job that emails the dashboard as a PDF
-- [ ] Convert the dashboard to query the bronze layer directly
-- [ ] Add a notebook task that calls the BI tool's screenshot API
-  ::time=30
-
-## Q8: The same transformation notebook must run once per region for 14 regions, with up to 4 running in parallel. Which mechanism should be used?
-- [ ] Fourteen copies of the task with manual dependencies
-- [ ] A run-if condition on each regional task
-- [ ] An if/else condition task evaluating the region list
-- [x] A for-each task iterating the region list with concurrency set to 4
-  ::time=30
-
-## Q9: A task calling an external API fails intermittently (about 5% of calls) and succeeds when retried. What is the FIRST mechanism to configure?
-- [ ] An if/else task that checks API health before calling
-- [x] Task retries with a retry interval
-- [ ] A repair run after each failure
-- [ ] A continuous trigger so failures restart automatically
-  ::time=30
-
-## Q10: A team must deploy the same job to dev and prod, where prod writes to a different schema and uses a different schedule. What is the bundle-native way to do this?
-- [ ] Maintain two separate databricks.yml files in two repositories
-- [ ] Edit the YAML manually before each prod deployment
-- [x] Define targets with variable overrides for schema and schedule
-- [ ] Use the workspace UI to clone the dev job into prod monthly
-  ::time=30
-
-## Q11: Which Databricks CLI sequence correctly takes a bundle from source to a running job in the dev environment?
-- [x] databricks bundle validate → databricks bundle deploy -t dev → databricks bundle run -t dev my_job
-- [ ] databricks bundle run -t dev my_job → databricks bundle deploy -t dev
-- [ ] databricks bundle deploy -t dev → databricks bundle validate
-- [ ] databricks jobs create → databricks bundle sync → databricks bundle start
-  ::time=30
-
-## Q12: A job defines a job parameter env=prod. How does a notebook task receive this value at run time?
-- [ ] Through a global Python variable named env injected into the session
-- [ ] By reading the job's databricks.yml from the workspace
-- [ ] Via spark.conf.get("job.env") on the cluster
-- [x] As a widget, read with dbutils.widgets.get("env")
-  ::time=30
-
-## Q13: A small team spends hours each sprint tuning job-cluster sizes for unpredictable, spiky workloads and wants to stop managing compute entirely. Which option best fits?
-- [ ] A large all-purpose cluster shared by all jobs
-- [x] Serverless jobs compute
-- [ ] A pool of pre-warmed job clusters with fixed sizes
-- [ ] Single-node clusters for every task
-  ::time=30
-
-## Q14: Over three weeks, a job's nightly run time has grown from 20 to 55 minutes with no code changes. Which feature provides the FIRST evidence for diagnosing this trend?
-- [ ] The Spark UI of the most recent run only
-- [ ] The job's email notification settings
-- [x] The run history view comparing durations across runs (matrix view per task)
-- [ ] DESCRIBE HISTORY on the target table
-  ::time=30
-
-## Q15: A data engineer working in a workspace Git folder has committed and pushed a feature branch. Where is the pull request created and merged?
-- [x] In the Git provider (GitHub/GitLab/Azure DevOps); the workspace links out to it
-- [ ] In the Databricks workspace Git folder UI
-- [ ] In the Databricks CLI with databricks repos merge
-- [ ] PRs are unnecessary; pushing the branch auto-merges to main
-  ::time=30
-
----
-
-### Quiz Answer Key (with explanations)
-
-| # | Answer | Difficulty | Explanation |
-|---|--------|-----------|-------------|
-| Q1 | Lakeflow Jobs | Easy | The current name; "Workflows" is the legacy term, Lakeflow Connect is ingestion. |
-| Q2 | Failed + downstream only | Easy | Repair run's defining behavior — successful tasks are never re-executed. |
-| Q3 | File arrival | Easy | Watches a storage location; the data-driven alternative to polling. |
-| Q4 | databricks.yml | Easy | The bundle's root configuration file. |
-| Q5 | Branch/commit/push | Easy | The workspace UI covers the daily Git loop; PR merge lives in the provider. |
-| Q6 | Table update trigger | Applied | The dependency is on a *table's* new commits, not files or clock time — table update is purpose-built for it. |
-| Q7 | Dashboard task | Applied | BI refresh as a DAG node depending on the load — the exam-named task type. |
-| Q8 | For-each | Applied | Iterate a list with a concurrency setting — verbatim "looping" objective. |
-| Q9 | Retries | Applied | Intermittent + succeeds-on-retry = the definition of transient; retries are the first line. |
-| Q10 | Targets + variable overrides | Applied | The bundle-native promotion pattern — same code, per-target config. |
-| Q11 | validate → deploy → run | Applied | The canonical CLI order; deploy places resources, run executes them. |
-| Q12 | Widget | Tricky | Job parameters surface in notebook tasks as widgets — the parameters→widgets contract. |
-| Q13 | Serverless | Tricky | "Stop managing compute" + spiky workloads = serverless's exam-stated value ("hands-off, auto-optimized"). The pool option is plausible but still requires sizing. |
-| Q14 | Run history / matrix | Tricky | A *trend* needs runs compared over time — verbatim Domain 6 objective. Spark UI inspects one run; it's step two. |
-| Q15 | In the provider | Easy | The workspace gets you to the PR; creation/review/merge happen in GitHub/GitLab/DevOps. |
-
-Difficulty mix: 6 easy / 6 applied / 3 tricky = 40% / 40% / 20%. Correct answers spread across positions 1–4.
-
----
+Instructor copy: `instructor_private/markdown_mash/Week3_Quiz.md`. This path is intentionally ignored by git so learners do not see the questions or answer key ahead of time.
 
 ## 8. Exam Tips for This Week
 

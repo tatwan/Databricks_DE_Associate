@@ -225,50 +225,7 @@ display(spark.sql("SELECT * FROM customers ORDER BY customer_id"))
 # COMMAND ----------
 
 # MAGIC %md ---
-# MAGIC ## Part 4 — SOLUTIONS
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 2
-# MAGIC GRANT SELECT ON VIEW sales_by_store TO `account users`;
-# MAGIC SHOW GRANTS ON VIEW sales_by_store;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC REVOKE SELECT ON VIEW sales_by_store FROM `account users`;
-# MAGIC SHOW GRANTS ON VIEW sales_by_store;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 3
-# MAGIC CREATE OR REPLACE FUNCTION email_mask(email STRING)
-# MAGIC RETURN CASE WHEN is_account_group_member('brewmart_support') THEN email
-# MAGIC             ELSE regexp_replace(email, '^[^@]+', '***') END;
-# MAGIC ALTER TABLE customers ALTER COLUMN email SET MASK email_mask;
-# MAGIC SELECT customer_id, email FROM customers;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 4
-# MAGIC CREATE OR REPLACE FUNCTION hq_or_atlanta(city STRING)
-# MAGIC RETURN is_account_group_member('brewmart_hq') OR city = 'Atlanta';
-# MAGIC ALTER TABLE customers SET ROW FILTER hq_or_atlanta ON (city);
-# MAGIC SELECT COUNT(*) AS visible_rows FROM customers;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 7
-# MAGIC ALTER TABLE customers DROP ROW FILTER;
-# MAGIC ALTER TABLE customers ALTER COLUMN email DROP MASK;
-# MAGIC SELECT COUNT(*) AS all_back FROM customers;
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ✅ **Done.** Tonight: the 45-question timed mock (closed-book, one sitting, score per domain).
-# MAGIC **Exam anchors:** USE CATALOG + USE SCHEMA + SELECT chain · DENY > GRANT · masks hit owners too · CLUSTER BY = liquid clustering · OPTIMIZE compacts / VACUUM trims history · skew = max ≫ median task time
+# MAGIC ## Instructor Solution
+# MAGIC The completed solution is kept in `instructor_private/notebook_solutions/Week4_Governance_Optimization_Solution.py` and is intentionally ignored by git.
+# MAGIC
+# MAGIC ✅ Keep your completed schema and tables — the next week builds on them.

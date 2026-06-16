@@ -187,52 +187,7 @@ display(silver_preview.orderBy("order_id"))
 # COMMAND ----------
 
 # MAGIC %md ---
-# MAGIC ## Part 4 — SOLUTIONS
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 3
-# MAGIC CREATE OR REPLACE TABLE sales_silver AS
-# MAGIC SELECT DISTINCT
-# MAGIC   order_id,
-# MAGIC   CAST(order_date AS DATE)   AS order_date,
-# MAGIC   customer_id, store, product, category,
-# MAGIC   CAST(quantity AS INT)      AS quantity,
-# MAGIC   CAST(unit_price AS DOUBLE) AS unit_price,
-# MAGIC   ROUND(CAST(quantity AS INT) * CAST(unit_price AS DOUBLE), 2) AS line_total
-# MAGIC FROM sales_bronze
-# MAGIC WHERE order_id IS NOT NULL;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 4
-# MAGIC ALTER TABLE sales_silver ALTER COLUMN order_id SET NOT NULL;
-# MAGIC ALTER TABLE sales_silver ADD CONSTRAINT positive_qty CHECK (quantity > 0);
-
-# COMMAND ----------
-
-# Task 5
-spark.sql(f"""
-MERGE INTO sales_silver AS t
-USING (
-  SELECT order_id,
-         CAST(order_date AS DATE)   AS order_date,
-         customer_id, store, product, category,
-         CAST(quantity AS INT)      AS quantity,
-         CAST(unit_price AS DOUBLE) AS unit_price,
-         ROUND(CAST(quantity AS INT) * CAST(unit_price AS DOUBLE), 2) AS line_total
-  FROM read_files('{VOL}/week2_corrections.csv', format => 'csv', header => true)
-) AS s
-ON t.order_id = s.order_id
-WHEN MATCHED THEN UPDATE SET *
-WHEN NOT MATCHED THEN INSERT *
-""")
-display(spark.sql("DESCRIBE HISTORY sales_silver LIMIT 3"))
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ✅ **Done.** Keep everything — Week 3 schedules this exact pipeline as a Lakeflow Job.
-# MAGIC **Exam anchors:** COPY INTO tracks files (rerun = 0) · Auto Loader = cloudFiles + schemaLocation + checkpoint + availableNow · `_rescued_data` · dot syntax + `explode` · MERGE = atomic upsert · CHECK rejects the whole write
+# MAGIC ## Instructor Solution
+# MAGIC The completed solution is kept in `instructor_private/notebook_solutions/Week2_Ingestion_Transformations_Solution.py` and is intentionally ignored by git.
+# MAGIC
+# MAGIC ✅ Keep your completed schema and tables — the next week builds on them.

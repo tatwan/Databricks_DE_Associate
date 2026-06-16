@@ -2,7 +2,7 @@
 
 > Aligned to the **May 4, 2026** Databricks Certified Data Engineer Associate exam guide.
 > Domains: **all seven**, integrated. No new exam content — this session converts knowledge into exam performance.
-> Companion file: `05_Mock_Exam.md` (45 questions, blueprint-weighted) — taken at home after Week 4; reviewed in class today.
+> Companion assessment: the instructor-only 45-question Markdown Mash mock exam, taken as a timed event after Week 4 and reviewed in class today.
 
 ---
 
@@ -34,7 +34,7 @@
 | 1:20–1:50 | Mock-exam review by domain (the week's "activity") | Question autopsies on the cohort's worst domains |
 | 1:50–2:00 | Final readiness checklist + send-off | Logistics, last-week plan, confidence calibration |
 
-*Structural note: this week the lab IS the capstone, the demo IS the solution walkthrough, and the activity IS the mock review. The weekly quiz is replaced by the 45-question mock (`05_Mock_Exam.md`).*
+*Structural note: this week the lab IS the capstone, the demo IS the solution walkthrough, and the activity IS the mock review. The weekly quiz is replaced by the instructor-only 45-question mock exam.*
 
 ---
 
@@ -231,7 +231,7 @@ Close the capstone with a clean reference solution (15 minutes, after learners a
 
 **Setup**
 - Your own completed capstone build in `week1_demo` (built in rehearsal — you'll walk it, not build it live)
-- `05_Mock_Exam.md` open; three pre-chosen questions spanning the cohort's likely weak domains (suggested: Q31 targets/bundles, Q39 privilege chain, Q21 constraint-vs-quarantine)
+- Instructor-only mock exam open; three pre-chosen questions spanning the cohort's likely weak domains (suggested: Q31 targets/bundles, Q39 privilege chain, Q21 constraint-vs-quarantine)
 
 **Walkthrough script (Part 1 — capstone solution, ~15 min)**
 1. **The shape first:** show the finished lineage graph — returns volume → bronze → silver (+ quarantine) → net-revenue gold, with the job node. "Architecture before code: this is what M1–M8 built."
@@ -410,7 +410,7 @@ Mock domain-score tallies from the warm-up on screen; the 2–3 weakest domains 
 One learner drives each question: stem aloud → forcing constraint → eliminate in confidence order → name distractor types → state the one-sentence rule. Instructor referees, corrects gently, keeps 3-minute pace. Everyone else votes (hands/chat) *before* the driver eliminates — public commitment makes wrong instincts visible and fixable.
 
 **Scenario**
-The questions themselves — drawn live from `05_Mock_Exam.md` based on the cohort's actual misses.
+The questions themselves — drawn live from the instructor-only mock exam based on the cohort's actual misses.
 
 **Learner deliverable**
 The rules wall: 8–10 one-sentence rules in the cohort's own words, photographed/shared at session end — their collective last-week crib sheet.
@@ -427,10 +427,10 @@ Per question, in the mock's answer key (domain-mapped, one-line explanations).
 
 ## 7. Markdown Mash Practice Quiz
 
-**This week's quiz is the full mock exam — see `05_Mock_Exam.md`** (45 questions, blueprint-weighted: 3 Platform / 9 Ingestion / 10 Transformation / 7 Jobs / 4 CI/CD / 5 Troubleshooting / 7 Governance, with a domain-mapped answer key).
+**This week's quiz is the instructor-only full mock exam** (45 questions, blueprint-weighted: 3 Platform / 9 Ingestion / 10 Transformation / 7 Jobs / 4 CI/CD / 5 Troubleshooting / 7 Governance, with a domain-mapped answer key).
 
 Usage:
-- **Before class (required):** taken at home, timed (90:00), closed-book, one sitting; self-scored per domain
+- **Before class (required):** instructor releases the mock as a timed event (90:00), closed-book, one sitting; learners self-score per domain
 - **In class:** the review block autopsies questions from the cohort's weakest domains
 - **After class:** retake *missed questions only* on Day 5 of the final-week plan
 
@@ -514,4 +514,4 @@ Idempotency end-to-end; bronze-absorbs/silver-enforces; managed-tables-unlock-au
 
 ---
 
-*Course complete. Files: `00_Curriculum_Map.md` · Weeks 1–5 · `05_Mock_Exam.md` · `datasets/` · `notebooks/` · `cicd/databricks.yml`.*
+*Course complete. Files: `00_Curriculum_Map.md` · Weeks 1–5 · instructor-only mock · `datasets/` · `notebooks/` · `cicd/databricks.yml`.*

@@ -1,7 +1,7 @@
 # Week 2: Data Ingestion and Loading + Bronze→Silver Transformations
 
 > Aligned to the **May 4, 2026** Databricks Certified Data Engineer Associate exam guide.
-> Primary exam domains: **Data Ingestion and Loading** (~20%, full coverage) + **Data Transformation and Modeling** (~22%, the cleaning/joins/dedup/MERGE/data-quality half).
+> Primary exam domains: **Data Ingestion and Loading** (21%, full coverage) + **Data Transformation and Modeling** (22%, the cleaning/joins/dedup/MERGE/data-quality half).
 > Continues the BrewMart storyline — learners need their Week 1 `lab1_<name>` schema, `sales_raw` table, and `landing` volume.
 
 ---
@@ -48,7 +48,7 @@
 
 **Key bullets**
 - Week 1 gave us governed objects; today we fill them — continuously
-- Two exam domains today: Ingestion (~20%) + the transformation half of the biggest domain (~22%)
+- Two exam domains today: Ingestion (21%) + the transformation half of the biggest domain (22%)
 - Together: over 40% of your exam is in this session and its homework
 - BrewMart storyline continues: daily files now arrive — loading them once isn't the job; loading them *repeatedly and safely* is
 
@@ -56,7 +56,7 @@
 Run the 5-question oral retrieval quiz first (DROP semantics, CTAS rule, hierarchy order, time-travel syntax, volume path). Then ask who did the stretch task — let a learner name the duplicates and NULLs in the Week 1 file. That dirty data is today's raw material. Frame the session's question: "How do you load files that keep arriving, without ever double-loading, and how do you turn raw into trustworthy?"
 
 **Visual suggestion**
-Course progress strip with Weeks 1–5; today highlighted with the two domain badges and "~40%+" callout.
+Course progress strip with Weeks 1–5; today highlighted with the two domain badges and "40%+" callout.
 
 **Exam relevance**
 Orientation; weighting awareness drives study allocation.
@@ -732,133 +732,11 @@ Six picks + the forcing constraint word(s) they spotted in each.
 
 ---
 
-## 7. Markdown Mash Practice Quiz
+## 7. Live Knowledge Check
 
-# Week 2 Quiz: Ingestion and Bronze→Silver Transformations
-# Score 100
+The Markdown Mash quiz for this week is kept in the instructor-only private materials and launched live during the session.
 
-## Q1: A data engineer runs the same COPY INTO command twice in a row with no new files added. What happens on the second run?
-- [ ] The target table doubles in size
-- [ ] The command fails with a duplicate-file error
-- [x] No new rows are loaded because already-ingested files are skipped
-- [ ] The table is truncated and reloaded
-  ::time=20
-
-## Q2: Which format keyword identifies Auto Loader in a Structured Streaming read?
-- [x] cloudFiles
-- [ ] autoLoader
-- [ ] deltaStream
-- [ ] copyFiles
-  ::time=20
-
-## Q3: A query combines two result sets and must keep duplicate rows. Which SQL operator is correct?
-- [ ] UNION
-- [ ] INTERSECT
-- [ ] UNION DISTINCT
-- [x] UNION ALL
-  ::time=20
-
-## Q4: What is the purpose of the _rescued_data column produced by Auto Loader?
-- [ ] It stores the filename and ingestion timestamp of each row
-- [x] It captures data that did not match the expected schema instead of dropping it
-- [ ] It holds rows quarantined by CHECK constraints
-- [ ] It backs up each row before schema evolution
-  ::time=20
-
-## Q5: Which SQL command updates matching rows and inserts non-matching rows from a source into a Delta table in a single atomic operation?
-- [ ] UPSERT INTO
-- [x] MERGE INTO
-- [ ] INSERT OVERWRITE
-- [ ] APPLY CHANGES
-  ::time=20
-
-## Q6: A pipeline must ingest millions of small JSON files arriving continuously in cloud storage, with occasional new fields appearing in the data. Which ingestion method fits best?
-- [x] Auto Loader with schema evolution enabled
-- [ ] COPY INTO on a nightly schedule
-- [ ] A managed Lakeflow Connect connector
-- [ ] INSERT INTO with read_files in a loop
-  ::time=30
-
-## Q7: A team needs daily Salesforce data in Unity Catalog and wants the most managed solution with minimal engineering effort. What should they use?
-- [ ] Auto Loader pointed at Salesforce exports
-- [ ] A JDBC connection in a scheduled notebook
-- [x] A Lakeflow Connect managed connector
-- [ ] COPY INTO from the Salesforce REST API
-  ::time=30
-
-## Q8: A silver table must keep only the most recent record per customer_id based on updated_at. Which approach is correct?
-- [ ] SELECT DISTINCT customer_id FROM source
-- [ ] GROUP BY customer_id with MAX(updated_at) selecting all columns
-- [ ] dropDuplicates() with no arguments
-- [x] ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY updated_at DESC) and keep rows where it equals 1
-  ::time=30
-
-## Q9: A 6 MB store-dimension table is joined to a 900 GB sales fact table and the join is slow due to shuffling. What should the engineer consider?
-- [ ] Converting the join to a cross join
-- [x] A broadcast join so the small table is sent to every executor
-- [ ] Splitting the fact table into multiple UNION ALL branches
-- [ ] Increasing spark.sql.shuffle.partitions to shuffle faster
-  ::time=30
-
-## Q10: A column favorite_categories contains arrays like ["Kitchen","Appliances"]. What does explode(favorite_categories) return?
-- [ ] One concatenated string per row
-- [ ] A struct with one field per category
-- [x] One output row per array element
-- [ ] The array sorted alphabetically
-  ::time=20
-
-## Q11: A nightly job loads ~50 CSV files from a volume into a Delta table. The team works exclusively in SQL and needs safe reruns. Which option is BEST?
-- [x] COPY INTO with the volume path as source
-- [ ] Auto Loader with file notification mode
-- [ ] A Lakeflow Connect managed connector
-- [ ] CREATE OR REPLACE TABLE with read_files each night
-  ::time=30
-
-## Q12: Auto Loader is running with default schema evolution (addNewColumns). A new column appears in incoming files. What happens?
-- [ ] The new column is silently dropped from all rows
-- [ ] All new files are routed to _rescued_data permanently
-- [ ] The stream continues and the column appears automatically mid-run
-- [x] The stream stops with a schema-change error and picks up the new column on restart
-  ::time=30
-
-## Q13: A table has CHECK (quantity > 0). A batch INSERT of 1,000 rows includes 3 rows with quantity = -1. What is the result?
-- [ ] 997 rows are inserted and 3 are skipped
-- [x] The entire INSERT fails and no rows are written
-- [ ] 997 rows are inserted and 3 go to _rescued_data
-- [ ] The constraint converts the negative values to NULL
-  ::time=30
-
-## Q14: Customer records contain a struct column contact with fields email and city. After reading the JSON with read_files, which expression selects the city?
-- [ ] contact->city
-- [ ] explode(contact).city
-- [x] contact.city
-- [ ] city FROM LATERAL contact
-  ::time=20
-
----
-
-### Quiz Answer Key (with explanations)
-
-| # | Answer | Difficulty | Explanation |
-|---|--------|-----------|-------------|
-| Q1 | No new rows | Easy | COPY INTO tracks loaded files; reruns skip them — its defining idempotency feature. |
-| Q2 | cloudFiles | Easy | `format("cloudFiles")` is the Auto Loader source; the others are invented. |
-| Q3 | UNION ALL | Easy | UNION dedupes; UNION ALL preserves duplicates (cheaper, too). |
-| Q4 | Captures non-conforming data | Easy | `_rescued_data` keeps mismatched values rather than dropping/failing. |
-| Q5 | MERGE INTO | Easy | The atomic upsert statement. UPSERT INTO doesn't exist; APPLY CHANGES is a declarative-pipeline CDC construct, not the generic SQL answer. |
-| Q6 | Auto Loader | Applied | "Millions of files + continuous + evolving schema" are Auto Loader's signature constraints. |
-| Q7 | Managed connector | Applied | SaaS source + most-managed requirement → Lakeflow Connect managed connector. |
-| Q8 | ROW_NUMBER = 1 | Applied | Only the window-function pattern controls *which* duplicate survives. GROUP BY+MAX can't select all columns consistently; dropDuplicates() without args needs fully identical rows. |
-| Q9 | Broadcast join | Applied | Small-dim-to-big-fact under the broadcast threshold eliminates the shuffle of the large side. |
-| Q10 | One row per element | Applied | explode fans arrays into rows; it does not touch structs or order. |
-| Q11 | COPY INTO | Tricky | Auto Loader also *works* — but "SQL-only + ~50 files + scheduled + rerun-safe" makes COPY INTO the *best* (simplest sufficient) answer. Classic best-fit question. |
-| Q12 | Stops, then succeeds on restart | Tricky | addNewColumns fails the stream intentionally; the schema location is updated so the restart proceeds — self-healing under job retries. |
-| Q13 | Entire INSERT fails | Tricky | Constraints are transactional contracts: one violation aborts the whole write. Skipping/quarantining requires explicit patterns or expectations with DROP. |
-| Q14 | contact.city | Easy | Dot syntax navigates parsed structs (colon syntax is for raw JSON strings). |
-
-Difficulty mix: 6 easy / 5 applied / 3 tricky ≈ 43% / 36% / 21%. Correct answers spread across positions 1–4.
-
----
+Instructor copy: `instructor_private/markdown_mash/Week2_Quiz.md`. This path is intentionally ignored by git so learners do not see the questions or answer key ahead of time.
 
 ## 8. Exam Tips for This Week
 

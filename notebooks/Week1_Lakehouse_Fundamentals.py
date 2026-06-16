@@ -219,63 +219,7 @@ display(spark.sql(f"""
 # COMMAND ----------
 
 # MAGIC %md ---
-# MAGIC ## Part 4 — SOLUTIONS
-
-# COMMAND ----------
-
-# Task 4 solution
-spark.sql(f"""
-CREATE OR REPLACE TABLE sales_raw AS
-SELECT order_id,
-       CAST(order_date AS DATE)   AS order_date,
-       customer_id, store, product, category,
-       CAST(quantity AS INT)      AS quantity,
-       CAST(unit_price AS DOUBLE) AS unit_price,
-       CAST(quantity AS INT) * CAST(unit_price AS DOUBLE) AS line_total
-FROM read_files('/Volumes/workspace/{USER_SCHEMA}/landing/week1_retail_sales.csv',
-                format => 'csv', header => true)
-""")
-display(spark.table("sales_raw").limit(5))
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 5 solution
-# MAGIC DESCRIBE EXTENDED sales_raw;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 6 solution
-# MAGIC CREATE OR REPLACE VIEW sales_by_store AS
-# MAGIC SELECT store, ROUND(SUM(line_total),2) AS total_revenue,
-# MAGIC        COUNT(DISTINCT order_id) AS order_count
-# MAGIC FROM sales_raw GROUP BY store;
+# MAGIC ## Instructor Solution
+# MAGIC The completed solution is kept in `instructor_private/notebook_solutions/Week1_Lakehouse_Fundamentals_Solution.py` and is intentionally ignored by git.
 # MAGIC
-# MAGIC CREATE OR REPLACE TEMP VIEW my_scratch AS
-# MAGIC SELECT category, SUM(quantity) AS units FROM sales_raw GROUP BY category;
-# MAGIC
-# MAGIC SELECT * FROM sales_by_store ORDER BY total_revenue DESC;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC -- Task 7 solution
-# MAGIC UPDATE sales_raw SET unit_price = 0;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC DESCRIBE HISTORY sales_raw;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC RESTORE TABLE sales_raw TO VERSION AS OF 0;
-# MAGIC SELECT ROUND(SUM(unit_price),2) AS prices_are_back FROM sales_raw;
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ✅ **Done.** Keep this schema — Week 2 builds on it.
-# MAGIC **Exam anchors from today:** Delta is the default format · CTAS infers schema · managed DROP deletes data · `VERSION AS OF` · `/Volumes/<catalog>/<schema>/<volume>/`
+# MAGIC ✅ Keep your completed schema and tables — the next week builds on them.

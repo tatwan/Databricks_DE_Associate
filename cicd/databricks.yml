@@ -33,6 +33,7 @@ resources:
         periodic:
           interval: 1
           unit: DAYS
+        pause_status: PAUSED
       email_notifications:
         on_failure:
           - you@example.com
