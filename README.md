@@ -32,6 +32,7 @@ This repository is organized for live instructor-led delivery. Learners should u
 - `notebooks/` — Databricks source-format learner notebooks.
 - `datasets/` — small lab datasets used by the notebooks.
 - `cicd/` — Databricks bundle example for Week 3.
+- `readings/` — supplemental reference material for offline study and exam review (one file per week). These are always available to learners.
 - `solutions/` — post-lab solution review handouts. These should be released only after learners complete the corresponding lab or capstone.
 
 ### Instructor-Only
