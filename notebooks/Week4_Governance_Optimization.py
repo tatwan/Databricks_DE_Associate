@@ -188,16 +188,12 @@ display(spark.sql("SELECT * FROM customers ORDER BY customer_id"))
 
 # COMMAND ----------
 
-# MAGIC %md ### TODO Task 6 — Open lineage on `sales_gold_daily` (UI) · Task 7 — drop the filter + mask, confirm full visibility
+# MAGIC %md ### TODO Task 6 — Open lineage on `sales_gold_daily` (UI)
+# MAGIC Do this before cleanup so the graph still reflects the governed objects you just created.
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC -- TODO Task 7
-
-# COMMAND ----------
-
-# MAGIC %md ### Validation
+# MAGIC %md ### Validation before cleanup
 
 # COMMAND ----------
 
@@ -216,6 +212,21 @@ display(spark.sql("SELECT * FROM customers ORDER BY customer_id"))
 # MAGIC %sql
 # MAGIC -- Clustering in place
 # MAGIC DESCRIBE DETAIL sales_gold_daily;
+
+# COMMAND ----------
+
+# MAGIC %md ### TODO Task 7 — drop the filter + mask, confirm full visibility
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- TODO Task 7
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- After cleanup: all customer rows should be visible again
+# MAGIC SELECT COUNT(*) AS all_rows_after_cleanup FROM customers;
 
 # COMMAND ----------
 
