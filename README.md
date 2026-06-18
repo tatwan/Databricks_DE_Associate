@@ -45,7 +45,7 @@ Do not publish or share `instructor_private/` with learners. It contains answer 
 
 ## Solution Review Policy
 
-The files in `solutions/` are learner-facing, but they are not starter materials. Release them after the relevant lab:
+The files in `solutions/` will be released them after the relevant lab:
 
 | File | Release after |
 |---|---|
