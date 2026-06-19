@@ -35,14 +35,6 @@ This repository is organized for live instructor-led delivery. Learners should u
 - `readings/` — supplemental reference material for offline study and exam review (one file per week). These are always available to learners.
 - `solutions/` — post-lab solution review handouts. These should be released only after learners complete the corresponding lab or capstone.
 
-### Instructor-Only
-
-- `instructor_private/notes/` — curriculum map, weekly instructor notes, demo scripts, pacing, facilitation guidance, and mock-exam planning.
-- `instructor_private/markdown_mash/` — live quizzes and mock exam.
-- `instructor_private/notebook_solutions/` — private Databricks solution notebooks used for instructor debrief and rescue.
-- `instructor_private/Databricks_Suggested_Outline.md` — planning reference.
-
-Do not publish or share `instructor_private/` with learners. It contains answer keys, assessment material, and delivery guidance that would weaken the learning experience if seen early.
 
 ## Solution Review Policy
 
@@ -56,12 +48,3 @@ The files in `solutions/` will be released them after the relevant lab:
 | `solutions/Week5_Capstone_Solution_Review.md` | Week 5 capstone debrief |
 
 Week 3 is mostly a Jobs UI exercise. Use the Week 3 task notebooks and `cicd/databricks.yml` as the reference package.
-
-## Notes for Instructors
-
-Before delivery:
-
-- Rehearse each notebook in the target Databricks workspace.
-- Confirm which Free Edition features are available for Jobs triggers, Auto Loader, masks, row filters, and lineage.
-- Keep screenshots or recorded walkthroughs for any workspace feature that may be unavailable during class.
-- Use the mock exam and weekly quizzes from `instructor_private/markdown_mash/` only in controlled delivery.
