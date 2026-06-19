@@ -187,7 +187,7 @@ display(silver_preview.orderBy("order_id"))
 # COMMAND ----------
 
 # MAGIC %md ---
-# MAGIC ## Instructor Solution
-# MAGIC The completed solution is kept in `instructor_private/notebook_solutions/Week2_Ingestion_Transformations_Solution.py` and is intentionally ignored by git.
+# MAGIC ## Solution
+# MAGIC The solution file will be shared by your instructor.
 # MAGIC
 # MAGIC ✅ Keep your completed schema and tables — the next week builds on them.

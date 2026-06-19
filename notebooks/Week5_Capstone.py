@@ -153,7 +153,7 @@ except Exception as e:
 # COMMAND ----------
 
 # MAGIC %md ---
-# MAGIC ## Instructor Solution
-# MAGIC The capstone solution is kept in `instructor_private/notebook_solutions/Week5_Capstone_Solution.py` and is intentionally ignored by git.
+# MAGIC ## Solution
+# MAGIC The solution file will be shared by your instructor.
 
 # MAGIC 🏁 **Course complete.** Final week: weakest domain first · redo labs from scratch · retake missed mock questions · book the exam at webassessor.com/databricks · 2 minutes per question · flag and move · answer everything.
