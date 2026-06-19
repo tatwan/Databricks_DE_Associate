@@ -8,11 +8,17 @@
 **Estimated read time:** 25–35 minutes  
 **Running example:** BrewMart retail sales data
 
+> **Course scope:** Product names, exam domains, and Free Edition constraints in this handout are aligned to the course's June 2026 delivery. Recheck the current Databricks exam guide and Free Edition limitations when using it for a later cohort.
+
+## How to Use This Handout
+
+- **Before the lab:** Read through Unity Catalog, managed tables, volumes, and CTAS.
+- **During the lab:** Use the BrewMart section and object tables as quick references; follow the notebook for exact tasks.
+- **After class:** Answer the self-check questions without looking, then use the mini checklist to confirm you are ready for Week 2.
+
 ## Why This Week Matters
 
 Week 1 establishes the mental model that every later week builds on. The exam's Domain 1 (Platform) and large parts of Domains 3 and 7 are tested using the concepts introduced here: one copy of data in Delta, one governance tree in Unity Catalog, and the difference between managed and external objects.
-
-This week seeds the "Intelligence Platform" and "Governance & Quality" areas that appear across the current 5-domain grouping used in many official prep paths (Intelligence Platform, Development & Ingestion, Data Processing & Transformations, Productionizing Data Pipelines, Governance & Quality). The full 7-domain breakdown with exact weights is in the course curriculum map.
 
 If you cannot confidently answer "what happens when I drop a managed table vs an external table?" or "what does the `_delta_log` actually do?", you will lose easy points on the exam.
 
@@ -24,7 +30,7 @@ Databricks markets the full platform as the **Data Intelligence Platform**. The 
 
 The layers, from bottom to top:
 
-1. **Cloud object storage** (S3, ADLS, GCS) — cheap, durable, your account.
+1. **Cloud object storage** (S3, ADLS, GCS) — cheap, durable storage for table and file data.
 2. **Open table files** (Parquet + Delta) — the actual data files plus transactional metadata.
 3. **Unity Catalog** — the single governance layer (catalog.schema.object).
 4. **Compute** — SQL warehouses, serverless notebooks/jobs, or classic clusters.
@@ -38,10 +44,10 @@ This model eliminates the traditional split between "data lake" (cheap but unrel
 
 A quick but useful distinction for Domain 1 questions:
 
-- **Control plane**: Managed by Databricks (web UI, job scheduler, Unity Catalog metastore, cluster management APIs, billing).
-- **Data plane**: Executes in *your* cloud account (the actual compute and your object storage).
+- **Control plane**: Managed by Databricks (web UI, job scheduler, Unity Catalog metastore, compute-management APIs, billing).
+- **Compute plane / data plane**: Where code executes and accesses data. Classic compute runs in the customer's cloud account; serverless compute runs in a Databricks-managed serverless environment.
 
-In Free Edition you work in a single workspace backed by one metastore. Larger organizations often share a metastore across multiple workspaces while keeping separate data planes for isolation and cost control. This separation is a recurring theme in platform and governance questions.
+In Free Edition you work in a single workspace backed by one metastore and use serverless compute. Larger organizations can attach multiple workspaces to a Unity Catalog metastore and choose serverless or classic compute based on their platform requirements. This separation is a recurring theme in platform and governance questions.
 
 ## Light dbutils in Notebooks
 
@@ -52,6 +58,18 @@ You will encounter `dbutils` in the course notebooks and labs. It is a utility l
 - `dbutils.notebook.exit()` — return small values from one notebook task to another (Week 3 orchestration).
 
 At the Associate level the exam does not require deep mastery of every dbutils module. Focus on the widget and exit patterns that connect jobs to notebooks.
+
+## Why the Lab Uses SQL (and Where Python or Scala Fits)
+
+Week 1 uses SQL because table creation, metadata inspection, views, and version recovery are declarative operations. You describe the result you want, and Databricks chooses the execution plan. The certification also expects you to recognize this SQL syntax.
+
+| Language | Best fit in this course | Example |
+|---|---|---|
+| SQL | DDL, CTAS, metadata, views, queries, and table recovery | `DESCRIBE HISTORY sales_raw` |
+| Python / PySpark | Reusable program logic, control flow, complex transformations, testing, and orchestration | Build a parameterized transformation function |
+| Scala | Spark/JVM applications and teams with an existing Scala codebase | Use the typed Spark API in a JVM project |
+
+Databricks notebooks can mix languages. The Week 1 notebook uses Python for the reusable schema widget and dynamic volume path, then SQL for the database operations. The choice is about the task, not about one language being universally better.
 
 ## Delta Lake — Parquet Plus a Transaction Log
 
@@ -180,9 +198,16 @@ You will create:
 - A volume called `landing`
 - A managed Delta table `sales_raw` via CTAS (with casts and `line_total`)
 - A view (`sales_by_store`) and a temp view
-- A deliberate mistake followed by `DESCRIBE HISTORY` + `VERSION AS OF` + `RESTORE TABLE`
+- A deliberate update that zeros both `unit_price` and `line_total`, followed by `DESCRIBE HISTORY` + `VERSION AS OF` + `RESTORE TABLE`
 
 Everything you create here is reused in Weeks 2–5. Do not drop your schema or volume.
+
+The recovery sequence matters:
+
+1. `UPDATE` creates the bad current version.
+2. `DESCRIBE HISTORY` identifies the available versions.
+3. `VERSION AS OF 0` proves the original snapshot is still readable; it does not repair current data.
+4. `RESTORE TABLE ... TO VERSION AS OF 0` makes the earlier snapshot current again and records another history operation.
 
 ## Exam Focus — What Gets Tested
 
