@@ -17,6 +17,8 @@ Use the approved Four-Pillar Executive Portfolio layout:
 - Muted gold accents and dividers.
 - The existing circular portrait treatment.
 - Four portfolio pillars: Advise, Build, Teach, and Publish.
+- Build is the featured full-width row, split between consulting delivery and founder-builder proof.
+- Advise, Teach, and Publish form a compact three-column row beneath Build.
 - A compact client strip at the bottom.
 
 The visual system must match the previously approved dark and light profile slides.
@@ -46,13 +48,34 @@ The visual system must match the previously approved dark and light profile slid
 
 ### Four Pillars
 
+After the proof metrics, use Build as the dominant full-width feature. Split it into a left consulting-delivery block and a right founder-builder block. Place Advise, Teach, and Publish in a shorter three-column row below. This gives delivery and product execution more space without abandoning the four-part portfolio story.
+
 **Advise - AI strategy and transformation**
 
 Executive advisor and former CTO helping enterprises and government agencies modernize data, scale AI, and govern emerging technology.
 
-**Build - Production data and AI systems**
+**Build - Consulting delivery and founder-builder proof**
 
-Led lakehouses, ML platforms, real-time pipelines, analytics products, and cloud delivery across AWS, Azure, and GCP.
+The Build area uses two adjacent evidence blocks.
+
+The consulting-delivery block leads with production-ready systems delivered for Fortune 500 companies and government organizations:
+
+- AI and Machine Learning: production ML models, GenAI solutions, NLP, forecasting, anomaly detection, and decision systems.
+- Data platforms: lakehouses, data warehouses, streaming pipelines, MLOps, DataOps, governance, and cybersecurity data lakes.
+- Analytics products: real-time analytics, executive decision products, embedded analytics, and cloud modernization across AWS, Azure, and GCP.
+
+The founder-builder block demonstrates that Tarek uses AI and engineering to ship his own products:
+
+- Atollo Scout: role-based technical screening and hiring intelligence for Data and AI teams.
+- TempusFlow: no-code time-series analysis and forecasting.
+- RecoveryIQ: privacy-first iOS and Apple Watch recovery intelligence using on-device health data.
+
+Add a compact open-source proof line beneath the owned products:
+
+- EvalBench: local-first LLM evaluation workbench.
+- MarkdownMash: real-time classroom assessment used regularly in live teaching.
+
+Enterprise delivery remains the primary proof. Owned products provide differentiated execution evidence. Open-source projects must not become equal-sized product cards.
 
 **Teach - Capability at enterprise scale**
 
@@ -77,7 +100,7 @@ LEGO, Johnson & Johnson, American Express, Disney, AT&T, NBCUniversal, Aramco, E
 
 ## Source Priority
 
-Use the attached May 2026 executive CV for career history and project claims. Use tarekatwan.com for current positioning and portfolio metrics. Preserve the approved wording above unless verification reveals a factual conflict.
+Use the attached May 2026 executive CV for career history and project claims. Use tarekatwan.com for current positioning and portfolio metrics. Use atollo.net, tempusflow.io, recoveryiqapp.com, and the EvalBench and MarkdownMash GitHub repositories for product descriptions. Preserve the approved wording above unless verification reveals a factual conflict.
 
 ## Deliverables
 
