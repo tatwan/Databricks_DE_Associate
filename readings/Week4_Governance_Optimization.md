@@ -1,6 +1,10 @@
 # Week 4: Governance and Security + Troubleshooting and Optimization
 
-**Exam domains:** Governance and Security, Troubleshooting, Monitoring, and Optimization (newly emphasized in the May 2026 guide).  
+**Exam domains (May 2026 guide):**
+- Governance and Security (15%) — full coverage
+- Troubleshooting, Monitoring, and Optimization (10%) — the performance half (run-history monitoring was Week 3)
+
+
 **Estimated read time:** 30–40 minutes  
 **Running example:** Securing and tuning the BrewMart silver and gold tables
 
@@ -109,9 +113,25 @@ Tables are files. Query speed is heavily influenced by file layout.
 - A few very large files → poor parallelism and pruning.
 
 **OPTIMIZE** compacts small files.  
-**VACUUM** removes files no longer referenced by any table version (reclaims storage but limits time travel).
+**VACUUM** removes files no longer referenced by any table version (reclaims storage but limits time travel). Default retention: 7 days.
 
 **Common trap:** Swapping the purposes of OPTIMIZE and VACUUM in answers.
+
+### The Recovery Toolkit (you ran all of these)
+
+| Mistake | Recovery |
+|---|---|
+| Bad UPDATE/DELETE | `RESTORE TABLE t TO VERSION AS OF n` (Week 1) |
+| Dropped a **managed** table | `UNDROP TABLE t` — within the retention window |
+| Need to *read* the past | `SELECT ... VERSION AS OF n` or `TIMESTAMP AS OF '...'` |
+| Time travel "stopped working" for old versions | VACUUM removed those files — bounded by retention |
+
+## Control Plane vs Compute Plane (Domain 1 callback)
+
+- **Control plane** — managed by Databricks: web UI, job scheduler, Unity Catalog metastore, compute-management APIs. Your grants, masks, and lineage are metadata living here.
+- **Compute plane** — where code executes and touches data: **classic** compute runs in the customer's cloud account; **serverless** runs in a Databricks-managed environment.
+
+One-line exam answers: classic clusters run in *your* cloud account; serverless runs in *Databricks'* environment; the metastore is control-plane.
 
 ## Liquid Clustering
 
@@ -167,13 +187,13 @@ On serverless and with AQE, Databricks does much of this automatically. The exam
 ## BrewMart in Week 4
 
 You will:
-- Grant least-privilege access (schema-level SELECT for a BI group, more restrictive for others).
-- Implement a column mask and a row filter on real data.
-- Observe that even the table owner sees masked values.
-- Add `CLUSTER BY` to a gold table.
-- Run `OPTIMIZE` and inspect `DESCRIBE DETAIL`.
-- Diagnose a simulated bottleneck using stage metrics and task duration distribution.
-- Prove a constraint violation and a quarantine-style pattern.
+- Run a GRANT → SHOW GRANTS → REVOKE round-trip on your Week 1 view.
+- Implement a column mask and a row filter on real data — and observe that even the table owner sees masked values.
+- Build `sales_gold_daily` with `CLUSTER BY (store, order_date)`, run `OPTIMIZE`, and inspect `DESCRIBE DETAIL`.
+- Open the automatic lineage of your gold table in Catalog Explorer.
+- Unbind the policies and prove the data was never modified.
+- In the demo: read a query profile (find the exchange/shuffle), run the maintenance & recovery drill (`VACUUM`, `DROP`→`UNDROP`, `TIMESTAMP AS OF`), and query the audit log shape (`system.access.audit`).
+- Diagnose bottleneck scenarios (skew / spill / startup / driver OOM) in the in-class symptom-card activity.
 
 ## Exam Focus — Symptom → Action and Precise Wording
 

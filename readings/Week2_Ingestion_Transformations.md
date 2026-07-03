@@ -1,6 +1,10 @@
 # Week 2: Ingestion and Bronze→Silver Transformations
 
-**Exam domains:** Development and Ingestion, Data Processing & Transformations (cleaning, joins, dedup, MERGE, and quality). These align with the 2026 exam’s ingestion and transformation domains.  
+**Exam domains (May 2026 guide):**
+- Data Ingestion and Loading (21%) — full coverage
+- Data Transformation and Modeling (22%) — cleaning, joins, dedup, aggregation, MERGE, data quality
+
+
 **Estimated read time:** 30–40 minutes  
 **Running example:** BrewMart daily sales files + corrections file
 
@@ -68,7 +72,29 @@ Databricks offers a spectrum from most-managed (least code) to most-custom (most
 
 **Pattern:** Read bronze → transform → write a *new* silver table. Never mutate bronze.
 
-The same transformations must be expressible in both SQL and PySpark because the exam shows code in "SQL when possible, Python otherwise."
+### NULL Handling Toolkit
+
+| Need | SQL | PySpark |
+|---|---|---|
+| Drop rows where a key is NULL | `WHERE order_id IS NOT NULL` | `.where(col("order_id").isNotNull())` or `.na.drop(subset=["order_id"])` |
+| Replace NULL with a fallback | `COALESCE(store, 'Unknown')` | `.fillna({"store": "Unknown"})` or `coalesce(col("store"), lit("Unknown"))` |
+| Remember | `NULL * anything = NULL` — a missing `unit_price` makes `line_total` NULL, not 0 | same |
+
+### SQL ↔ PySpark Translation Table
+
+The exam shows code "SQL when possible, Python otherwise" — you must *read* both dialects fluently even if you write SQL daily.
+
+| Operation | SQL | PySpark |
+|---|---|---|
+| Filter | `WHERE order_id IS NOT NULL` | `.where(col("order_id").isNotNull())` |
+| Cast | `CAST(quantity AS INT)` | `.withColumn("quantity", col("quantity").cast("int"))` |
+| Derive a column | `ROUND(q * p, 2) AS line_total` | `.withColumn("line_total", round(col("q") * col("p"), 2))` |
+| Full-row dedup | `SELECT DISTINCT` | `.dropDuplicates()` |
+| Dedup by key | `ROW_NUMBER() ... = 1` | `.dropDuplicates(["key"])` (arbitrary survivor) |
+| Join | `FROM a LEFT JOIN b ON a.k = b.k` | `a.join(b, "k", "left")` |
+| Aggregate | `GROUP BY store` + `SUM(x)` | `.groupBy("store").agg(sum("x"))` |
+| Distinct count | `COUNT(DISTINCT order_id)` | `countDistinct("order_id")` |
+| Append rows | `UNION ALL` | `.union(df)` (by position!) / `.unionByName(df)` |
 
 ## Deduplication and the Latest-Row Pattern
 
@@ -103,7 +129,8 @@ Use for:
 ## Joins, Broadcast, and UNION
 
 - Multi-key joins use `ON a.k1 = b.k1 AND a.k2 = b.k2`.
-- **Broadcast join** — small table copied to every executor. Avoids shuffling the large side. Triggered automatically below ~10 MB or with `/*+ BROADCAST(dim) */`.
+- **INNER vs LEFT:** an INNER JOIN silently drops fact rows with no dimension match — revenue "shrinks" with no error. Use LEFT JOIN + `COALESCE` to keep and label unmatched rows. This is the exam's favorite join bug.
+- **Broadcast join** — small table copied to every executor. Avoids shuffling the large side. Triggered automatically below ~10 MB or with `/*+ BROADCAST(dim) */`. The classic shape: small dimension joined to a large fact table.
 - `UNION` removes duplicates. `UNION ALL` keeps them.
 - PySpark `df.union()` behaves like `UNION ALL` (no dedup, matches by **position**).
 - `unionByName()` matches by name.
@@ -131,6 +158,7 @@ You will:
 6. Apply a corrections file with `MERGE INTO`.
 7. Prove the MERGE is idempotent.
 8. Prove that a constraint violation aborts the whole write.
+9. Build `customers_dim` from the nested JSON, LEFT JOIN it to silver, and serve a gold aggregate (`revenue_by_city_tier`) with `SUM` and `COUNT(DISTINCT ...)`.
 
 The corrections file deliberately contains both updates to Week 1 data and brand-new rows — this surfaces an important discussion about lineage and when rows become updates vs inserts.
 
@@ -151,6 +179,8 @@ The corrections file deliberately contains both updates to Week 1 data and brand
 3. Why does the bronze table keep the duplicate row that silver removes?
 4. Write (from memory) the expression that keeps only the latest row per `order_id` based on `updated_at`.
 5. A new column appears in the source files for an Auto Loader stream using default settings. What happens on the next run?
+6. Your gold revenue total dropped after you switched a LEFT JOIN to an INNER JOIN. Why, and which rows disappeared?
+7. A 5 MB store dimension is joined to a 500 GB fact table and the join shuffles heavily. What should you consider, and why does it help?
 
 ## Recommended Documentation
 

@@ -2,7 +2,7 @@
 
 These Markdown files provide the depth you need to study the course **offline**, before or after the live sessions.
 
-The course follows the May 2026 exam structure (7 domains with published weights). The weekly readings are organized around the same 5-Friday progression that maps cleanly onto both the 7-domain breakdown and the higher-level groupings often referenced in official prep paths (Intelligence Platform, Development & Ingestion, Data Processing & Transformations, Productionizing Data Pipelines, and Governance & Quality).
+The course follows the May 2026 exam structure — 7 domains with published weights: Databricks Intelligence Platform (6%), Data Ingestion and Loading (21%), Data Transformation and Modeling (22%), Working with Lakeflow Jobs (16%), Implementing CI/CD (10%), Troubleshooting/Monitoring/Optimization (10%), and Governance and Security (15%). The weekly readings follow the same 5-Friday progression, and each file's header states which domains it covers.
 
 ## Purpose
 

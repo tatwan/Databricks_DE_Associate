@@ -1,6 +1,11 @@
 # Week 3: Lakeflow Jobs, Orchestration, and CI/CD
 
-**Exam domains:** Productionizing Data Pipelines (Lakeflow Jobs), Implementing CI/CD (new in the May 2026 guide), and partial Troubleshooting & Monitoring.  
+**Exam domains (May 2026 guide):**
+- Working with Lakeflow Jobs (16%) — full coverage
+- Implementing CI/CD (10%) — full coverage (new domain in the May 2026 guide)
+- Troubleshooting, Monitoring, and Optimization (10%) — run history / Jobs UI objectives (the rest lands in Week 4)
+
+
 **Estimated read time:** 25–35 minutes  
 **Running example:** Turning your BrewMart bronze→silver pipeline into a scheduled, repairable, versioned job
 
@@ -72,9 +77,32 @@ schema = dbutils.widgets.get("target_schema")
 
 **Task values** (`dbutils.jobs.taskValues.set` / `get`) pass small results between tasks (row counts, status flags, etc.). Big data moves through tables, not task values.
 
+```python
+# Upstream task (ingest_bronze):
+dbutils.jobs.taskValues.set(key="bronze_rows", value=row_count)
+
+# Downstream task (build_silver):
+rows = dbutils.jobs.taskValues.get(taskKey="ingest_bronze", key="bronze_rows",
+                                   default=-1, debugValue=0)
+```
+
+`debugValue` is what you get when running the notebook interactively, outside a job.
+
 Dynamic references: `{{job.parameters.x}}`, `{{tasks.ingest.values.rows}}`.
 
 This is how the same notebook serves dev, test, and prod.
+
+## Notebook Composition: %run vs Job Tasks
+
+Notebooks support **magic commands** (`%sql`, `%python`, `%md`, `%run`). Two ways to "run another notebook":
+
+| | `%run ./helper` | Job task / `dbutils.notebook.run` |
+|---|---|---|
+| Execution | Inline, **same session** — like pasting its cells here | **Isolated** run with its own state |
+| Definitions (functions, variables) | Shared into your session | Not shared — pass data via parameters, task values, or tables |
+| Best for | Shared setup and helper functions | Orchestration: dependencies, retries, schedules, repair |
+
+**Exam answer shape:** "reuse helper functions" → `%run`; "run notebooks in order with retries/schedule" → a job with tasks. A driver notebook full of `%run` calls gives you no DAG, no retries, no per-task monitoring — that's the trap option.
 
 ## Monitoring and Repair
 
@@ -160,6 +188,7 @@ You will:
 3. What is the difference between a job parameter and a task value? Give one use case for each.
 4. In a `databricks.yml`, where does the instruction "in prod, write to schema `sales_prod`" live?
 5. A teammate says "I committed my notebook change in the workspace." Has the pull request been created yet? Explain.
+6. A team's "orchestration" is one driver notebook with five `%run` calls in sequence. Name two production capabilities they are giving up compared to a 5-task job.
 
 ## Recommended Documentation
 

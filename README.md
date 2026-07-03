@@ -20,9 +20,10 @@ This repository is organized for live instructor-led delivery. Learners should u
 2. Import the relevant `.py` file from `notebooks/` into Databricks as a notebook.
 3. Upload the required CSV or JSON files from `datasets/` when the notebook asks for them.
 4. Keep your Week 1 schema and volume through the full course. Later weeks build on earlier objects.
-5. For Week 3, import both task notebooks:
-   - `notebooks/week3_01_ingest_bronze.py`
-   - `notebooks/week3_02_build_silver.py`
+5. For Week 3, import all three notebooks:
+   - `notebooks/Week3_Jobs_Orchestration.py` — the companion you run interactively (pre-flight + verification)
+   - `notebooks/week3_01_ingest_bronze.py` — executed by the job you build (Task 1)
+   - `notebooks/week3_02_build_silver.py` — executed by the job you build (Task 2)
 
 ## Materials
 
@@ -38,13 +39,23 @@ This repository is organized for live instructor-led delivery. Learners should u
 
 ## Solution Review Policy
 
-The files in `solutions/` will be released them after the relevant lab:
+The files in `solutions/` are released after the relevant lab debrief.
+
+**Solution notebooks (Databricks source format, markdown-only — import and read; nothing executes).** Each shows, per lab task: the task, the solution snippet, why it works, and common mistakes:
+
+| File | Release after |
+|---|---|
+| `solutions/Week1_Solutions_Notebook.py` | Week 1 lab debrief |
+| `solutions/Week2_Solutions_Notebook.py` | Week 2 lab debrief |
+| `solutions/Week3_Solutions_Notebook.py` | Week 3 lab debrief (job config + runs + gate + verification) |
+| `solutions/Week4_Solutions_Notebook.py` | Week 4 lab debrief |
+
+**Markdown review documents** (same content in plain-Markdown form, for offline reading):
 
 | File | Release after |
 |---|---|
 | `solutions/Week1_Solution_Review.md` | Week 1 lab debrief |
 | `solutions/Week2_Solution_Review.md` | Week 2 lab debrief |
+| `solutions/Week3_Solution_Review.md` | Week 3 lab debrief |
 | `solutions/Week4_Solution_Review.md` | Week 4 lab debrief |
 | `solutions/Week5_Capstone_Solution_Review.md` | Week 5 capstone debrief |
-
-Week 3 is mostly a Jobs UI exercise. Use the Week 3 task notebooks and `cicd/databricks.yml` as the reference package.
