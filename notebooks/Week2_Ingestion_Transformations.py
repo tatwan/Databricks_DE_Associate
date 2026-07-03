@@ -8,8 +8,8 @@
 # MAGIC | Part | Content |
 # MAGIC |---|---|
 # MAGIC | 1 | Setup |
-# MAGIC | 2 | Demo — COPY INTO (idempotency proof), Auto Loader, nested JSON, PySpark mirror |
-# MAGIC | 3 | **Your lab** — incremental bronze→silver with MERGE + constraints |
+# MAGIC | 2 | Demo — COPY INTO (idempotency proof), Auto Loader, nested JSON, PySpark mirror, NULL handling + latest-row dedup |
+# MAGIC | 3 | **Your lab** — incremental bronze→silver with MERGE + constraints, then a gold join + aggregate |
 # MAGIC | 4 | Solutions |
 # MAGIC
 # MAGIC **Files:** upload `week2_sales_day2.csv` into `landing/sales_incoming/` BEFORE Part 2. Keep `week2_sales_day3.csv`, `week2_corrections.csv`, `week2_customers.json` ready.
@@ -107,7 +107,9 @@ COPY_OPTIONS ('mergeSchema' = 'true')
 # MAGIC
 # MAGIC **Predict:** When you reran COPY INTO and got 0 rows, *where* did it look to know those files were done?
 # MAGIC
-# MAGIC **Look for:** an operation named `COPY INTO` in the history with `operationMetrics`; then we list the physical `_delta_log` folder — ordered JSON commits, exactly like Week 1.
+# MAGIC **Look for:** an operation named `COPY INTO` in the history with `operationMetrics` — each commit records the files it ingested; a rerun skips paths already named in those commits.
+# MAGIC
+# MAGIC **One more reveal:** the next cell asks for the table's physical folder. On a **Unity Catalog managed table, the path comes back hidden/empty — by design.** UC brokers all access through the catalog so grants and auditing can never be bypassed via a raw storage path. That "failure" is Week 4's governance story arriving early. (On tables where a path IS exposed, the cell lists `part-*.parquet` + the `_delta_log/` JSON commits — exactly Week 1's picture.)
 # MAGIC
 # MAGIC **Why it matters:** this is Week 1's lesson made concrete — *the log IS the table's truth*. The exam tests the behavior (idempotent, file-tracked); this is the *why* behind it.
 
@@ -119,15 +121,27 @@ COPY_OPTIONS ('mergeSchema' = 'true')
 
 # COMMAND ----------
 
-# Find the table's physical location, then list its _delta_log
+# Try to find the table's physical location, then list its _delta_log.
+# On UC MANAGED tables the location is hidden (empty) — that is a feature, not a bug.
 detail = spark.sql("DESCRIBE DETAIL sales_bronze").collect()[0].asDict()
 loc = detail["location"]
-print("This 'table' is physically a folder:", loc)
-display(dbutils.fs.ls(loc))                  # part-*.parquet  +  _delta_log/
-print("\nInside _delta_log — the ordered JSON commits that ARE the table:")
-display(dbutils.fs.ls(loc + "/_delta_log"))
-# 00000.json, 00001.json, ... each COPY INTO appended a commit listing the files it ingested.
-# Rerun loaded 0 rows because those file paths are already named in these commits.
+
+if loc:
+    print("This 'table' is physically a folder:", loc)
+    display(dbutils.fs.ls(loc))                  # part-*.parquet  +  _delta_log/
+    print("\nInside _delta_log — the ordered JSON commits that ARE the table:")
+    display(dbutils.fs.ls(loc + "/_delta_log"))
+    # 00000.json, 00001.json, ... each COPY INTO appended a commit listing the files it ingested.
+else:
+    print("DESCRIBE DETAIL returned an EMPTY location — Unity Catalog is doing its job.")
+    print("Managed-table storage paths are hidden so every read/write goes THROUGH the")
+    print("catalog (grants, auditing, lineage) — no raw-path side door. Week 4 builds on this.")
+    print("\nThe log is still fully inspectable — through the governed window:")
+    hist = (spark.sql("DESCRIBE HISTORY sales_bronze")
+                 .select("version", "timestamp", "operation", "operationMetrics")
+                 .orderBy("version"))
+    display(hist)   # operationMetrics.numFiles / numOutputRows per COPY INTO commit
+# Either way: rerun loaded 0 rows because those file paths are already recorded in the log's commits.
 
 # COMMAND ----------
 
@@ -238,6 +252,21 @@ FROM read_files('{VOL}/week2_customers.json', format => 'json')
 # MAGIC **Look for:** a typed, deduplicated preview. Note this is a **preview only** — it does not create a table (no `.write`/`.saveAsTable`).
 # MAGIC
 # MAGIC **Why it matters:** the exam shows code "SQL when possible, Python otherwise," so you must read `withColumn`, `where`, and `dropDuplicates` as fluently as `SELECT`, `WHERE`, and `DISTINCT`. Same pipeline, two dialects.
+# MAGIC
+# MAGIC **Your SQL ↔ PySpark Rosetta stone** (study this table — DataFrame code appears on the exam):
+# MAGIC
+# MAGIC | Operation | SQL | PySpark |
+# MAGIC |---|---|---|
+# MAGIC | Filter | `WHERE order_id IS NOT NULL` | `.where(col("order_id").isNotNull())` |
+# MAGIC | Cast | `CAST(quantity AS INT)` | `.withColumn("quantity", col("quantity").cast("int"))` |
+# MAGIC | Derive | `ROUND(q * p, 2) AS line_total` | `.withColumn("line_total", round(col("q") * col("p"), 2))` |
+# MAGIC | Full-row dedup | `SELECT DISTINCT` | `.dropDuplicates()` |
+# MAGIC | Dedup by key | `ROW_NUMBER() ... = 1` | `.dropDuplicates(["key"])` (arbitrary survivor!) |
+# MAGIC | Fill NULLs | `COALESCE(store, 'Unknown')` | `.fillna({"store": "Unknown"})` |
+# MAGIC | Join | `a LEFT JOIN b ON a.k = b.k` | `a.join(b, "k", "left")` |
+# MAGIC | Aggregate | `GROUP BY store` + `SUM(x)` | `.groupBy("store").agg(sum("x"))` |
+# MAGIC | Distinct count | `COUNT(DISTINCT order_id)` | `countDistinct("order_id")` |
+# MAGIC | Append rows | `UNION ALL` | `.union(df)` (by position!) / `.unionByName(df)` |
 
 # COMMAND ----------
 
@@ -253,6 +282,42 @@ silver_preview = (
       .dropDuplicates(["order_id", "order_date", "customer_id"])
 )
 display(silver_preview.orderBy("order_id"))
+
+# COMMAND ----------
+
+# MAGIC %md ### 2.7 NULL handling and "keep the latest" dedup — two everyday silver moves
+# MAGIC
+# MAGIC **Goal:** Practice the two cleaning patterns the exam names that we have not run yet: fill a NULL with a fallback (`COALESCE`), and keep only the **latest** copy of each key (`ROW_NUMBER`).
+# MAGIC
+# MAGIC **The difference that matters:**
+# MAGIC - `SELECT DISTINCT` removes rows that are identical in *every* column — either copy survives, they are the same.
+# MAGIC - `ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC) = 1` is for rows that share a key but *differ* — **you** choose which one survives (here: the most recently ingested, using our `_ingested_at` audit column).
+# MAGIC
+# MAGIC **Predict:** Order 1045 arrived with a NULL `store`. What will `COALESCE(store, 'Unknown')` return for it? And in the second query, if an order was loaded twice with different `_ingested_at` stamps, which copy is kept?
+# MAGIC
+# MAGIC **Look for:** `store_filled` shows `Unknown` where `store` is NULL; the dedup query returns exactly one row per `order_id` — the newest.
+# MAGIC
+# MAGIC **Why it matters:** the exam lists NULL handling and deduplication explicitly. `COALESCE` (SQL) = `fillna()` / `na.fill()` (PySpark); `WHERE col IS NOT NULL` = `na.drop()` / `.where(col(...).isNotNull())`. And "keep the most recent record per key" is a named question pattern whose answer is always the `ROW_NUMBER ... = 1` shape.
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- Move 1: COALESCE fills NULLs with a fallback (fillna in PySpark)
+# MAGIC SELECT order_id, store, COALESCE(store, 'Unknown') AS store_filled
+# MAGIC FROM sales_bronze
+# MAGIC WHERE store IS NULL;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- Move 2: keep the LATEST row per order_id, using the audit column
+# MAGIC SELECT * FROM (
+# MAGIC   SELECT *,
+# MAGIC          ROW_NUMBER() OVER (PARTITION BY order_id
+# MAGIC                             ORDER BY _ingested_at DESC) AS rn
+# MAGIC   FROM sales_bronze
+# MAGIC ) WHERE rn = 1
+# MAGIC ORDER BY order_id;
 
 # COMMAND ----------
 
@@ -402,6 +467,48 @@ display(silver_preview.orderBy("order_id"))
 
 # COMMAND ----------
 
+# MAGIC %md ### TODO Task 6 — Enrich and serve: join the customer dimension, aggregate to gold
+# MAGIC
+# MAGIC **Goal:** Close the medallion loop: join `sales_silver` to a customer dimension built from the nested JSON, then aggregate into a gold object a BI team could use.
+# MAGIC
+# MAGIC **Before you code:** You queried `week2_customers.json` in demo 2.5 but never kept it. A dimension this small (10 rows) joined to a growing fact table is the classic **broadcast join** shape — Spark copies the small side to every executor so the big side never shuffles. It happens automatically under the ~10MB threshold; on the exam, recognize the `/*+ BROADCAST(c) */` hint.
+# MAGIC
+# MAGIC **Your task:**
+# MAGIC 1. CTAS `customers_dim` from `read_files('{VOL}/week2_customers.json', format => 'json')`, keeping `customer_id`, `name`, `loyalty_tier`, and `contact.city AS city` (dot into the struct — no explode needed here).
+# MAGIC 2. Create gold view `revenue_by_city_tier`: **LEFT JOIN** `sales_silver s` to `customers_dim c` on `customer_id`, so sales from unknown customers are kept.
+# MAGIC 3. Use `COALESCE(c.city, 'Unknown')` for the city (2.7's move — some silver customer_ids are not in the dim).
+# MAGIC 4. Group by city and `loyalty_tier`; compute `ROUND(SUM(line_total), 2) AS revenue` and `COUNT(DISTINCT s.order_id) AS orders`.
+# MAGIC
+# MAGIC **Expected result:** a small city × tier grid, plus an `Unknown` city row — proof your LEFT JOIN kept unmatched sales. An INNER JOIN would have silently dropped them: the exam's favorite join bug.
+# MAGIC
+# MAGIC *Short on time? Finish this one as homework — it is in the solution review.*
+# MAGIC
+# MAGIC <details>
+# MAGIC <summary>Hint — click to expand</summary>
+# MAGIC
+# MAGIC - Step 1 is Python (needs `{VOL}`): `spark.sql(f"""CREATE OR REPLACE TABLE customers_dim AS SELECT customer_id, name, loyalty_tier, contact.city AS city FROM read_files('{VOL}/week2_customers.json', format => 'json')""")`
+# MAGIC - Step 2 skeleton: `CREATE OR REPLACE VIEW revenue_by_city_tier AS SELECT COALESCE(c.city,'Unknown') AS city, c.loyalty_tier, ... FROM sales_silver s LEFT JOIN customers_dim c ON s.customer_id = c.customer_id GROUP BY ...`
+# MAGIC - Why a **view** for gold here? Cheap recompute, always current — Week 1's gold-object menu. A materialized view would fit if this were an expensive aggregation hit constantly.
+# MAGIC - PySpark mirror to read: `s.join(c, "customer_id", "left").groupBy("city", "loyalty_tier").agg(round(sum("line_total"), 2).alias("revenue"), countDistinct("order_id").alias("orders"))`
+# MAGIC </details>
+
+# COMMAND ----------
+
+# TODO Task 6.1: build customers_dim (Python cell — you need the {VOL} path)
+# spark.sql(f""" CREATE OR REPLACE TABLE customers_dim AS SELECT ... """)
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- TODO Task 6.2: gold view with LEFT JOIN + COALESCE + aggregates
+# MAGIC -- CREATE OR REPLACE VIEW revenue_by_city_tier AS
+# MAGIC -- SELECT ...
+# MAGIC -- FROM sales_silver s LEFT JOIN customers_dim c ON ...
+# MAGIC -- GROUP BY ... ;
+# MAGIC -- SELECT * FROM revenue_by_city_tier ORDER BY revenue DESC;
+
+# COMMAND ----------
+
 # MAGIC %md ### Validation
 
 # COMMAND ----------
@@ -423,6 +530,12 @@ display(silver_preview.orderBy("order_id"))
 # MAGIC -- c) constraint works — this INSERT must FAIL (the error IS the green check)
 # MAGIC INSERT INTO sales_silver VALUES
 # MAGIC  ('9999', current_date(), 'C999', 'Atlanta', 'Test', 'Test', -1, 10.0, -10.0);
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- d) (Task 6) LEFT JOIN kept unmatched sales: expect an 'Unknown' city row
+# MAGIC SELECT * FROM revenue_by_city_tier ORDER BY revenue DESC;
 
 # COMMAND ----------
 
