@@ -12,7 +12,7 @@
 
 These two domains are frequently under-studied. Engineers spend most of their time building pipelines and relatively little time on "who can see the data" and "why is it slow."
 
-Governance questions are word-precise. A single word like `DENY` vs `REVOKE` or "managed" vs "external" can flip the answer. Optimization questions reward symptom → metric → first action reasoning more than memorizing tuning parameters.
+Governance questions are word-precise. A single word like `REVOKE` or "managed" vs "external" can flip the answer. Optimization questions reward symptom → metric → first action reasoning more than memorizing tuning parameters.
 
 ## The Securable Hierarchy and Principals
 
@@ -32,16 +32,16 @@ Privileges inherit **downward**. Granting at the schema level covers current and
 
 **Ownership** gives the ability to grant on an object.
 
-## GRANT, REVOKE, DENY and the Privilege Chain
+## GRANT, REVOKE, and the Privilege Chain
 
 To query a table you normally need the full chain:
 `USE CATALOG` + `USE SCHEMA` + `SELECT`
 
 Common privileges include `SELECT`, `MODIFY`, `CREATE TABLE`, `USE CATALOG`, `USE SCHEMA`, `READ VOLUME`, `WRITE VOLUME`, `EXECUTE`.
 
-**Critical distinctions:**
-- `REVOKE` removes a grant you previously gave. Other paths (group membership, other grants) may still allow access.
-- `DENY` explicitly blocks access and wins over any `GRANT`, even through groups.
+**Critical distinction:** `REVOKE` removes a grant you previously gave. Other paths (group membership or a grant inherited from another group) may still allow access.
+
+> **Current-doc warning:** The May 4, 2026 exam guide names `DENY`, but the current Databricks SQL reference says `DENY` is **not supported by Unity Catalog**. It applies only to legacy `hive_metastore` objects. For Unity Catalog, use groups and inheritance, `GRANT`/`REVOKE`, row filters, column masks, ABAC policies, and workspace bindings. If the stem explicitly says Unity Catalog, `DENY` is not valid SQL for that object.
 
 **Exam favorite:** "Analysts need read-only access to an entire schema." The best answer is almost always `GRANT SELECT ON SCHEMA ...` rather than per-table grants.
 
@@ -152,7 +152,7 @@ This is the current recommended approach named in the May 2026 guide.
 
 ## Predictive Optimization
 
-Databricks automatically runs OPTIMIZE, VACUUM, and layout decisions on **Unity Catalog managed tables** based on actual usage.
+Databricks automatically runs `OPTIMIZE`, `VACUUM`, and `ANALYZE` on eligible **Unity Catalog managed tables** based on actual usage. Automatic clustering-key selection is specifically associated with `CLUSTER BY AUTO`.
 
 It is a major reason to prefer managed tables when possible.
 
@@ -208,7 +208,7 @@ Predictive optimization questions usually ask which feature removes the need for
 
 ## Self-Check Questions
 
-1. After a `REVOKE`, a user can still read the table. List two possible reasons and the command that definitively blocks them.
+1. After a `REVOKE`, a user can still read the table. List two possible reasons and the Unity Catalog mechanisms you would use to correct the access design.
 2. Mask vs row filter vs ABAC: give the one-line condition that tells you which to choose.
 3. In a stage summary you see one task took 28 minutes while the median task took 12 seconds. What is the symptom and the first remedy you should consider?
 4. Why does predictive optimization only apply to managed tables?
@@ -218,12 +218,12 @@ Predictive optimization questions usually ask which feature removes the need for
 
 **Primary reading (~35 min)**
 
-- Unity Catalog privileges and securable objects (privilege table)
-- Row filters and column masks
-- ABAC overview (concept level)
-- Delta Sharing overview (the two types)
-- Liquid clustering for Delta tables; Predictive optimization
-- Spark UI guide — skew, spill, and shuffle diagnosis sections
+- [Unity Catalog privileges and securable objects](https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges)
+- [Row filters and column masks](https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks)
+- [ABAC overview](https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac)
+- [Liquid clustering](https://docs.databricks.com/aws/en/delta/clustering)
+- [Predictive optimization](https://docs.databricks.com/aws/en/optimizations/predictive-optimization)
+- [Spark UI guide](https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/)
 
 **Practice targets**
 - Re-apply a mask and row filter from memory.

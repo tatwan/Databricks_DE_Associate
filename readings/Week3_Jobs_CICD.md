@@ -127,6 +127,23 @@ In Free Edition this is what you use. The exam still expects you to know the cla
 
 Lakeflow Jobs can orchestrate multiple task types (notebooks, SQL, dbt, Python wheels, etc.) regardless of whether they run on serverless or classic job clusters.
 
+## Optional Enrichment: Lakeflow Spark Declarative Pipelines
+
+The May 4, 2026 outline does not name declarative pipelines as a scored objective, so treat this as enrichment. It is still useful because a Lakeflow Job can contain a pipeline task.
+
+Current Python documentation uses:
+
+```python
+from pyspark import pipelines as dp
+
+@dp.table
+@dp.expect_or_drop("valid_id", "order_id IS NOT NULL")
+def silver_orders():
+    return spark.readStream.table("bronze_orders")
+```
+
+Legacy `import dlt` code still runs, but current names are `pyspark.pipelines`, `@dp.table`, `@dp.materialized_view`, and `@dp.expect...`.
+
 ## CI/CD for Data Engineers
 
 Putting notebooks in Git is only half the story.
@@ -194,11 +211,12 @@ You will:
 
 **Primary reading (~45 min)**
 
-- Lakeflow Jobs overview + "Configure and edit tasks"
-- Trigger types for Lakeflow Jobs
-- Repair a job run; Job run statuses
-- Git folders (Databricks Git integration) — the end-to-end workflow
-- What are Declarative Automation Bundles? + `databricks.yml` structure reference (focus on high-level blocks)
+- [Lakeflow Jobs overview](https://docs.databricks.com/aws/en/jobs/)
+- [Trigger types for Lakeflow Jobs](https://docs.databricks.com/aws/en/jobs/triggers)
+- [Repair a job run](https://docs.databricks.com/aws/en/jobs/repair-job-failures)
+- [Databricks Git folders](https://docs.databricks.com/aws/en/repos/)
+- [Declarative Automation Bundles](https://docs.databricks.com/aws/en/dev-tools/bundles/)
+- Optional: [Current Lakeflow Spark Declarative Pipelines Python API](https://docs.databricks.com/aws/en/ldp/developer/python-dev)
 
 **Practice targets**
 - Rebuild a 2-task job from scratch in under 10 minutes.

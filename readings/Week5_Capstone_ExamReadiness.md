@@ -17,7 +17,7 @@ The two halves of the session:
 
 You will:
 - Ingest a new returns feed (bronze) — using idempotent COPY INTO.
-- Apply a quality gate that sends unmatched returns to quarantine (silver) — using idempotent MERGE patterns.
+- Apply a quality gate that sends unmatched returns to quarantine (silver) — using a rerunnable rebuild and explicit anti-join logic.
 - Build a clustered gold table for net revenue (sales − returns).
 - Put the final step behind a paused Lakeflow Job.
 - Apply least-privilege grants.
@@ -57,6 +57,27 @@ For every question reviewed:
 
 At the end of the review you should have a short list of reusable rules, not just "I got that one right."
 
+## Coverage Recovery: Objectives That Are Easy to Under-Practice
+
+Before the final seven-line summary, make sure you can answer these without notes. They are explicit in the May 4, 2026 outline but are not all central to the capstone.
+
+### Ingestion and Loading
+
+- Choose among `COPY INTO`, Auto Loader, Lakeflow Connect managed/standard connectors, partner connectors, and notebook-based JDBC/ODBC/REST clients.
+- Explain Auto Loader directory listing vs file notification, schema enforcement vs evolution, and `_rescued_data`.
+- Choose batch, streaming, or incremental loading from arrival pattern, scale, latency, and governance constraints.
+- Ingest nested JSON and explain when to preserve nested structure vs `explode` arrays.
+
+### Transformation and Modeling
+
+- Distinguish inner, left, cross, multi-key, and broadcast joins.
+- Manipulate rows and columns: filter, add/drop/rename/split, and explode.
+- Deduplicate with `DISTINCT` or a latest-row window; aggregate with count, approximate distinct count, mean, and summary.
+- Choose among a view, materialized view, streaming table, and managed table for a Gold object.
+- Name what the four tuning settings influence: shuffle partitions, default parallelism, executor/driver memory, and the auto-broadcast threshold.
+
+If any bullet is fuzzy, use the Week 1–2 readings and the two recovery slides in the Week 5 deck before attempting another full mock.
+
 ## The Seven Domain One-Liners (Photograph This)
 
 - **Platform (Databricks Intelligence Platform):** One governed Delta copy serves every workload. Choose compute by workload type and interactivity.
@@ -65,7 +86,7 @@ At the end of the review you should have a short list of reusable rules, not jus
 - **Jobs (Working with Lakeflow Jobs):** DAG of tasks. Transient failure → retry. Broken but fixable → repair run. Time-based → schedule. Data arrival → file/table trigger.
 - **CI/CD (Implementing CI/CD):** Git folders version notebooks. Bundles declare everything. `validate → deploy → run`. PRs are created in the Git provider.
 - **Troubleshooting (Troubleshooting, Monitoring, and Optimization):** Before any tasks run → infra/library/startup. During work → skew/shuffle/spill/OOM. Trends live in run history; one run lives in the Spark UI or query profile.
-- **Governance (Governance and Security):** Privilege chain = USE CATALOG + USE SCHEMA + SELECT. `DENY` beats `GRANT`. One table → mask/filter. Fleet → ABAC. Managed tables unlock automation.
+- **Governance (Governance and Security):** Privilege chain = USE CATALOG + USE SCHEMA + SELECT. One table → mask/filter. Fleet → ABAC. Managed tables unlock automation. `DENY` is legacy `hive_metastore`, not Unity Catalog.
 
 These seven sentences are your final-week skeleton. If any line feels fuzzy, go back to that week's reading and lab.
 
@@ -109,9 +130,9 @@ Book a date that still gives you 5–7 solid study days after this session.
 
 You have succeeded when all validation queries return the expected numbers and your job run history shows a clean execution.
 
-Typical good numbers (will vary slightly with data):
-- Bronze rows include the duplicate.
-- Silver is deduplicated and the orphan return is in quarantine.
+Expected numbers for the supplied dataset:
+- Bronze has **13** rows, including the duplicate.
+- Silver has **11** deduplicated valid rows, and quarantine contains order **2001**.
 - Net revenue rows exist where net < gross (returns applied).
 - A bad insert against a constraint fails with a clear violation message.
 - Job completes successfully.
