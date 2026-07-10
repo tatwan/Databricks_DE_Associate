@@ -34,6 +34,8 @@ print(f"Working in workspace.{USER_SCHEMA}")
 
 # COMMAND ----------
 
+# Note: read_files() is available in SQL from DBR 13+ (all of Free Edition serverless).
+# On an older runtime elsewhere you would read JSON via spark.read.json(...) instead.
 spark.sql(f"""
 CREATE OR REPLACE TABLE customers AS
 SELECT customer_id, name, loyalty_tier,
@@ -52,7 +54,7 @@ display(spark.sql("SELECT * FROM customers ORDER BY customer_id"))
 # MAGIC
 # MAGIC **Look for:** the grant appears in `SHOW GRANTS`, then disappears after `REVOKE`. Note the backticks: `` `account users` `` — the principal name has a space.
 # MAGIC
-# MAGIC **Why it matters (exam):** grant to **groups**, not individuals (grants to people don't scale — exam answers favor groups). And know the difference: **REVOKE removes one grant** (access may survive via another group); **DENY overrides everything**, even group-inherited grants.
+# MAGIC **Why it matters (exam):** grant to **groups**, not individuals (grants to people don't scale — exam answers favor groups). `REVOKE` removes one grant, so access can survive through another group.
 
 # COMMAND ----------
 
@@ -65,7 +67,42 @@ display(spark.sql("SELECT * FROM customers ORDER BY customer_id"))
 # MAGIC %sql
 # MAGIC REVOKE SELECT ON TABLE customers FROM `account users`;
 # MAGIC SHOW GRANTS ON TABLE customers;
-# MAGIC -- Remember: REVOKE removes A grant; DENY overrides ALL grants. Different tools.
+# MAGIC -- REVOKE removes one grant; another inherited grant may still allow access.
+
+# COMMAND ----------
+
+# MAGIC %md ### 2.2b The exam-guide `DENY` contradiction — know the platform truth
+# MAGIC
+# MAGIC The May 4, 2026 exam guide names **GRANT, REVOKE, and DENY** under Governance & Security. Current Databricks SQL documentation is explicit: **`DENY` is not supported by Unity Catalog**; it applies only to objects in the legacy `hive_metastore` catalog.
+# MAGIC
+# MAGIC | Verb | Effect |
+# MAGIC |---|---|
+# MAGIC | `GRANT` | give a privilege to a principal |
+# MAGIC | `REVOKE` | remove **one** grant — access may still survive via another group the user is in |
+# MAGIC | `DENY` | legacy `hive_metastore` only; invalid for Unity Catalog objects |
+# MAGIC
+# MAGIC ```sql
+# MAGIC -- Legacy only; do not run this against a Unity Catalog table:
+# MAGIC DENY SELECT ON TABLE hive_metastore.legacy.customers TO `contractors`;
+# MAGIC ```
+# MAGIC
+# MAGIC **Unity Catalog answer:** use the privilege chain, group design, `REVOKE`, row filters, column masks, ABAC policies, and workspace bindings. If a question explicitly says the object is in Unity Catalog, `DENY` is not valid SQL for that object. Keep this note because the guide and product reference currently disagree.
+
+# COMMAND ----------
+
+# MAGIC %md ### 2.2c INFORMATION_SCHEMA — read the catalog with plain SQL
+# MAGIC **Goal:** see that catalog metadata (tables, columns, privileges) is itself queryable — no special API.
+# MAGIC
+# MAGIC **Why it matters (exam):** "programmatically list every table in a schema / audit who has which grant" → query `information_schema`, scoped to the current catalog. It is the SQL-standard cousin of Catalog Explorer.
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- Every table in your schema, straight from catalog metadata
+# MAGIC SELECT table_name, table_type
+# MAGIC FROM information_schema.tables
+# MAGIC WHERE table_schema = current_schema()
+# MAGIC ORDER BY table_name;
 
 # COMMAND ----------
 
@@ -164,6 +201,29 @@ display(spark.sql("SELECT * FROM customers ORDER BY customer_id"))
 # MAGIC %sql
 # MAGIC OPTIMIZE sales_gold_daily;
 # MAGIC -- Tiny table → near-zero metrics; on Premium, predictive optimization runs this for you, unasked.
+
+# COMMAND ----------
+
+# MAGIC %md ### 2.6b Z-ORDER — the legacy contrast, so you recognize it on the exam
+# MAGIC **Goal:** run the *older* data-skipping command once, so `OPTIMIZE ... ZORDER BY` is not just a name.
+# MAGIC
+# MAGIC **The three layouts the exam contrasts:**
+# MAGIC
+# MAGIC | Technique | How you set it | Status |
+# MAGIC |---|---|---|
+# MAGIC | **Liquid Clustering** | `CLUSTER BY (cols)` — changeable later, high-cardinality-safe | **current recommendation** |
+# MAGIC | **Z-ORDER** | `OPTIMIZE t ZORDER BY (cols)` — a manual re-sort, redone at each OPTIMIZE | legacy |
+# MAGIC | **Hive partitioning** | `PARTITIONED BY (col)` — rigid directories, dies on high cardinality | legacy |
+# MAGIC
+# MAGIC **Exam rule:** don't combine `CLUSTER BY` with `ZORDER` on the same table — Liquid Clustering *replaces* Z-ORDER. This cell runs on a throwaway copy so it doesn't fight the clustered `sales_gold_daily`.
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- Z-ORDER shown on a scratch copy (a NON-clustered table) for recognition only
+# MAGIC CREATE OR REPLACE TABLE sales_gold_zorder_demo AS SELECT * FROM sales_gold_daily;
+# MAGIC OPTIMIZE sales_gold_zorder_demo ZORDER BY (store);
+# MAGIC DROP TABLE IF EXISTS sales_gold_zorder_demo;
 
 # COMMAND ----------
 
@@ -266,10 +326,74 @@ display(spark.sql(f"SELECT * FROM sales_gold_daily TIMESTAMP AS OF '{ts}'"))
 
 # COMMAND ----------
 
+# MAGIC %md ### 2.10b Compute types — which one for which job (Domain 1, exam anchor)
+# MAGIC
+# MAGIC The guide lists compute *selection* and cost model explicitly. Four things to tell apart:
+# MAGIC
+# MAGIC | Compute | Runs | Use it for | Cost note |
+# MAGIC |---|---|---|---|
+# MAGIC | **All-purpose cluster** | interactive, shared by people | notebooks, dev, exploration | most expensive per job — it lingers |
+# MAGIC | **Job cluster** | created per run, terminated after | scheduled production jobs | cheapest for production — no idle time |
+# MAGIC | **SQL warehouse** | SQL only (Serverless / Pro / Classic) | BI, dashboards, ad-hoc SQL | Serverless = instant start, auto-scale |
+# MAGIC | **Serverless (jobs/notebooks)** | Databricks-managed compute | Free Edition; fast start, no cluster to size | pay per use, no infra to manage |
+# MAGIC
+# MAGIC **Exam rules of thumb:** SQL-only → **SQL warehouse**. Scheduled pipeline → **job cluster / serverless**. Interactive dev → **all-purpose / serverless**. "Cheapest for a nightly job" → **job cluster** (it doesn't idle).
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## Part 3 — LAB: Secure and Tune the BrewMart Lakehouse
 # MAGIC Analysts must never see raw emails; the vendor sees only their store's rows; gold needs a growth-ready layout.
-# MAGIC ✅ Task 1 (customers table) was built in the demo — recreate it here if you skipped Part 2.
+
+# COMMAND ----------
+
+# MAGIC %md ### 🔧 Lab reset / pre-flight — run this FIRST (makes the lab repeatable)
+# MAGIC **Goal:** guarantee a clean, known starting state no matter what you ran in the demo or in what order.
+# MAGIC
+# MAGIC **What it does:** unbinds any mask/row filter left on `customers`, drops the demo policy functions, then recreates `customers` fresh from the JSON. Also confirms your Week 1 `sales_by_store` view exists (Task 2 needs it) and recreates a minimal version if it is missing.
+
+# COMMAND ----------
+
+# Unbind policies if present (safe no-ops if they were never set), then rebuild customers
+for stmt in [
+    "ALTER TABLE customers DROP ROW FILTER",
+    "ALTER TABLE customers ALTER COLUMN email DROP MASK",
+]:
+    try:
+        spark.sql(stmt)
+    except Exception as e:
+        print("skip:", stmt.split(' ', 3)[-1], "→", str(e).split(':')[0])
+
+for fn in ["email_mask", "atlanta_only"]:
+    spark.sql(f"DROP FUNCTION IF EXISTS {fn}")
+
+spark.sql(f"""
+CREATE OR REPLACE TABLE customers AS
+SELECT customer_id, name, loyalty_tier,
+       contact.email AS email, contact.city AS city
+FROM read_files('{VOL}/week2_customers.json', format => 'json')
+""")
+
+# Task 2 grants on the Week 1 view — recreate a minimal one if it did not survive
+if not spark.catalog.tableExists(f"workspace.{USER_SCHEMA}.sales_by_store"):
+    spark.sql("""
+      CREATE OR REPLACE VIEW sales_by_store AS
+      SELECT store, ROUND(SUM(line_total),2) AS revenue, COUNT(DISTINCT order_id) AS orders
+      FROM sales_silver GROUP BY store
+    """)
+    print("Recreated sales_by_store from sales_silver.")
+
+print("✅ Reset complete — customers rebuilt, policies cleared, sales_by_store present.")
+
+# COMMAND ----------
+
+# MAGIC %md ### TODO Task 1 — Recreate/verify `customers`
+# MAGIC The reset cell above already rebuilt it. Confirm: `SELECT * FROM customers` shows ~10 rows with **real** emails (no mask yet).
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- TODO: SELECT to confirm customers exists with readable emails
 
 # COMMAND ----------
 

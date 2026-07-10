@@ -30,6 +30,29 @@ print(f"Capstone arena: workspace.{USER_SCHEMA}")
 
 # COMMAND ----------
 
+# MAGIC %md ## Pre-flight — do not start the clock until both checks are green
+
+# COMMAND ----------
+
+checks = {
+    "sales_silver exists": spark.catalog.tableExists(f"workspace.{USER_SCHEMA}.sales_silver"),
+}
+try:
+    return_files = dbutils.fs.ls(f"{VOL}/returns_incoming/")
+    checks["returns_incoming has week5_returns.csv"] = any(
+        file.name == "week5_returns.csv" for file in return_files
+    )
+except Exception:
+    checks["returns_incoming has week5_returns.csv"] = False
+
+for label, passed in checks.items():
+    print(("✅" if passed else "❌"), label)
+
+if not all(checks.values()):
+    print("Fix the red prerequisite before starting the 50-minute capstone.")
+
+# COMMAND ----------
+
 # MAGIC %md ## M1 — Land it
 # MAGIC Create `returns_incoming/` in your landing volume (Catalog Explorer) and upload `week5_returns.csv` there.
 
@@ -53,13 +76,17 @@ except Exception as e:
 
 # COMMAND ----------
 
-# TODO: COPY INTO (use VOL + '/returns_incoming/') — run twice, second run loads 0
+# TODO: run COPY INTO through spark.sql(f"""...""") so you can use
+# f"{VOL}/returns_incoming/" in the source path. Run the same statement twice;
+# the second result should report 0 inserted rows.
 
 # COMMAND ----------
 
 # MAGIC %md ## M3 — TODO: quality-gated silver
 # MAGIC `returns_silver` = typed + deduped returns whose `order_id` EXISTS in `sales_silver`.
 # MAGIC Non-matching rows → `returns_quarantine` (kept visible — NOT dropped).
+# MAGIC
+# MAGIC Prefer `EXISTS` / `NOT EXISTS` or left-semi / left-anti joins. Avoid a nullable `NOT IN` subquery: one `NULL` on the right can make every comparison unknown.
 
 # COMMAND ----------
 
@@ -92,7 +119,17 @@ except Exception as e:
 
 # COMMAND ----------
 
-# MAGIC %md ## M6 — Jobs UI: 2-task job (`ingest_returns` → `build_net_revenue`), **paused** daily schedule, one successful manual run
+# MAGIC %md ## M6 — Jobs UI: make your completed work runnable by the scheduler
+# MAGIC
+# MAGIC 1. Open `week5_01_ingest_returns.py`; paste your working M2 statements into its marked implementation block.
+# MAGIC 2. Open `week5_02_build_net_revenue.py`; paste your working M3–M4 statements into its marked implementation block.
+# MAGIC 3. Create job `brewmart_returns_<yourname>` with job parameter `target_schema=<your schema>`.
+# MAGIC 4. Task `ingest_returns` → `week5_01_ingest_returns` (serverless).
+# MAGIC 5. Task `build_net_revenue` → `week5_02_build_net_revenue`, depends on `ingest_returns`.
+# MAGIC 6. Add a daily schedule and **pause it**. Run once manually; both tasks must be green.
+# MAGIC
+# MAGIC **Success evidence:** Task 1 exits with `bronze_rows=13`; Task 2 exits with `gold_rows=<n>`; the schedule shows Paused.
+# MAGIC
 # MAGIC ## M7 — TODO: view `net_revenue_summary` + GRANT SELECT to `account users` + SHOW GRANTS
 
 # COMMAND ----------
@@ -146,7 +183,7 @@ except Exception as e:
 
 # MAGIC %md ---
 # MAGIC ## 🔒 HINTS (scroll only if stuck > 5 min)
-# MAGIC - **H-M3:** Week 2, joins slide — the anti-join idiom: two tables from one source, split by `IN` / `NOT IN` against `sales_silver.order_id`.
+# MAGIC - **H-M3:** Week 2, joins slide — split valid/orphan rows with `EXISTS` / `NOT EXISTS` (or left-semi / left-anti) against `sales_silver.order_id`.
 # MAGIC - **H-M4:** Returns don't know prices. Who does? Join `returns_silver` to `sales_silver` ON order_id, then LEFT JOIN the two daily aggregates.
 # MAGIC - **H-M6:** Your Week 3 job is the template — clone the pattern (widgets for `target_schema`), not the work.
 
