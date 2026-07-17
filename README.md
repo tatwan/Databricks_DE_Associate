@@ -20,10 +20,16 @@ This repository is organized for live instructor-led delivery. Learners should u
 2. Import the relevant `.py` file from `notebooks/` into Databricks as a notebook.
 3. Upload the required CSV or JSON files from `datasets/` when the notebook asks for them.
 4. Keep your Week 1 schema and volume through the full course. Later weeks build on earlier objects.
-5. For Week 3, import all three notebooks:
+5. For Week 3, import these notebooks:
    - `notebooks/Week3_Jobs_Orchestration.py` — the companion you run interactively (pre-flight + verification)
    - `notebooks/week3_01_ingest_bronze.py` — executed by the job you build (Task 1)
    - `notebooks/week3_02_build_silver.py` — executed by the job you build (Task 2)
+   - `notebooks/week3_03_quality_gate.py` — optional stretch task (Task 3, data-quality gate)
+   - `notebooks/week3_dlt_pipeline.py` — bonus: source for a Lakeflow Declarative Pipeline (attach in the Pipelines UI; do not run as a notebook)
+6. For Week 5, import the capstone plus its two job-task skeletons:
+   - `notebooks/Week5_Capstone.py` — the learner workspace and milestone checks
+   - `notebooks/week5_01_ingest_returns.py` — paste the tested M2 implementation, then use as job Task 1
+   - `notebooks/week5_02_build_net_revenue.py` — paste the tested M3–M4 implementation, then use as dependent job Task 2
 
 ## Materials
 
