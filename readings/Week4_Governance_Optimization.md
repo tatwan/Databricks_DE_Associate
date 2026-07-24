@@ -51,6 +51,14 @@ Week 1 introduced the concept. Week 4 adds the operations the exam lists:
 - Create, modify, delete
 - Convert between managed and external
 
+**Converting external → managed.** When you want Databricks to take over lifecycle management of an existing external table (so it becomes eligible for predictive optimization and UC-managed storage), you convert it in place:
+
+```sql
+ALTER TABLE catalog.schema.orders SET MANAGED;
+```
+
+The table keeps its name, grants, and history; ownership of the data files moves under Unity Catalog. This is the answer whenever a scenario says "we now want Databricks to manage the files/lifecycle of an existing external table." (`SET MANAGED` is a newer capability — confirm current syntax and availability in the docs for your workspace before relying on it.)
+
 `UNDROP TABLE` works for managed tables within the retention window.
 
 Predictive optimization and many automatic features are only available for managed tables in Unity Catalog.

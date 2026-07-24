@@ -30,6 +30,7 @@ Use them to:
 | `Week3_Jobs_CICD.md` | Lakeflow Jobs, triggers, control flow, Git folders, bundles | Domain 4 + Domain 5 | 25–35 min |
 | `Week4_Governance_Optimization.md` | Permissions, masks/filters, ABAC, Spark UI, Liquid Clustering | Domain 7 + Domain 6 | 30–40 min |
 | `Week5_Capstone_ExamReadiness.md` | End-to-end integration + exam strategy | All domains | 20–30 min |
+| `Exam_Review_CheatSheet.md` | One-pass concept review — every rule, syntax, and decision keyword the mocks test, by domain | All domains | 15–20 min |
 
 ## Relationship to Other Materials
 
