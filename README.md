@@ -2,7 +2,50 @@
 
 Five-Friday client enablement program for Databricks Certified Data Engineer Associate preparation.
 
-This repository is organized for live instructor-led delivery. Learners should use the slides, notebooks, datasets, and released solution reviews. Instructor notes, quizzes, mock exams, and private solution notebooks are kept under `instructor_private/` and should not be distributed to learners.
+This repository is organized for live instructor-led delivery. Learners should use the slides, notebooks, datasets, practice quizzes, and released solution reviews. Instructor notes, quizzes, mock exams, and private solution notebooks are kept under `instructor_private/` and should not be distributed to learners.
+
+## About the Certification Exam
+
+The course targets the exam version that goes live **May 4, 2026**. Always confirm the current details against the official exam guide before your test date — Databricks updates it whenever the exam changes.
+
+| Fact | Detail |
+|---|---|
+| Scored questions | 45 multiple-choice (unscored trial items may also appear) |
+| Time limit | 90 minutes |
+| Registration fee | USD 200 (plus local taxes) |
+| Delivery | Online proctored or test center |
+| Prerequisite | None required; ~6 months hands-on Databricks experience recommended |
+| Validity | 2 years (recertify with the current live exam) |
+| Retake policy | 14-day wait after a failed attempt |
+
+### Exam domain / topic distribution
+
+The exam is organized into seven domains. The approximate weights below are the blueprint this course is built to; use them to prioritize study — Ingestion and Transformation together are ~43% of the exam, so they get the most class time. All mock exams and practice quizzes are weighted to match.
+
+| # | Exam domain | Approx. weight | ~Qs of 45 | Key topics | Course week |
+|---|-------------|:---:|:---:|-------------|:---:|
+| 1 | Databricks Intelligence Platform | ~6% | 3 | Lakehouse value, Delta Lake & `_delta_log`, Unity Catalog object model, control vs data plane, compute selection | 1 |
+| 2 | Data Ingestion & Loading | ~21% | 9 | COPY INTO, Auto Loader (`cloudFiles`, checkpoints, schema evolution, `_rescued_data`), Lakeflow Connect, nested/semi-structured data | 2 |
+| 3 | Data Transformation & Modeling | ~22% | 10 | Bronze→silver cleaning, joins & broadcast, dedup & window functions, MERGE, aggregations, gold objects, data quality | 2 |
+| 4 | Working with Lakeflow Jobs | ~16% | 7 | Jobs/tasks/DAG, triggers, control flow (retries, if/else, for-each), parameters & task values, repair runs | 3 |
+| 5 | Implementing CI/CD | ~10% | 4 | Git folders vs provider PRs, Declarative Automation Bundles, `validate → deploy → run`, service-principal promotion | 3 |
+| 6 | Troubleshooting, Monitoring & Optimization | ~10% | 5 | Spark UI (skew, spill, shuffle), OPTIMIZE/VACUUM, Liquid Clustering, predictive optimization, failure triage | 3–4 |
+| 7 | Governance & Security | ~15% | 7 | Privilege chain & GRANT/REVOKE/DENY, principals, column masks & row filters, ABAC, managed vs external, lineage | 4 |
+
+*Weights are approximate and aligned to the exam-guide section ordering; the official guide lists objectives rather than fixed percentages, and the exact mix can vary by exam form. Re-verify each cohort.*
+
+### Official exam guides & resources
+
+- [Exam guide — version live from May 4, 2026 (PDF)](https://www.databricks.com/sites/default/files/2026-03/databricks-certified-data-engineer-associate-exam-guide-may-4-2026.pdf)
+- [Certification overview page](https://www.databricks.com/learn/certification/data-engineer-associate) — always links the latest exam guide
+- [Databricks certification hub](https://www.databricks.com/learn/training/certification)
+- [Certification & badging FAQ](https://www.databricks.com/learn/certification/faq)
+
+### Where to register
+
+- Register and schedule at **[webassessor.com/databricks](https://webassessor.com/databricks)** (create an account → *Register for an Assessment*).
+- Choose online-proctored or a test center. For online, run the [Kryterion system check](https://www.kryterion.com/systemcheck) on the actual machine you'll test on.
+- Have a government-issued photo ID and a clean, quiet testing area ready.
 
 ## Course Format
 
@@ -39,7 +82,8 @@ This repository is organized for live instructor-led delivery. Learners should u
 - `notebooks/` — Databricks source-format learner notebooks.
 - `datasets/` — small lab datasets used by the notebooks.
 - `cicd/` — Databricks bundle example for Week 3.
-- `readings/` — supplemental reference material for offline study and exam review (one file per week). These are always available to learners.
+- `readings/` — supplemental reference material for offline study and exam review (one file per week, plus a final `Exam_Review_CheatSheet.md`). These are always available to learners.
+- `practice/` — Markdown Mash practice quizzes with answer keys, organized `by_week/` and `by_domain/` (weighted to the exam blueprint). Always available to learners.
 - `solutions/` — post-lab solution review handouts. These should be released only after learners complete the corresponding lab or capstone.
 
 
