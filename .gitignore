@@ -2,3 +2,8 @@
 __pycache__/
 .worktrees/
 .superpowers/
+
+# Private teaching material (client confidential)
+slides/
+mock_tests/
+practice/
